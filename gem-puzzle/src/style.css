@@ -1,0 +1,46 @@
+body, h1, h2, h3, p, ul, ol, li {
+  margin: 0;
+  padding: 0;
+}
+
+.main-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.game-controls {
+  padding: 50px 0 20px;
+  width: 480px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.game-controls__btn {
+  /* background-color: red; */
+}
+
+.game-controls__btn--new {
+  /* border-color: blue; */
+}
+
+.game-info {
+  padding: 0 0 10px;
+  width: 400px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.gameboard-wrapper {
+  width: 500px;
+  height: 500px;
+  max-width: 90%;
+  max-height: 90%;
+  background-color: blueviolet;
+  border-radius: 10px;
+}
+
+.gameboard {
+  width: 100%;
+  height: 100%;
+}
