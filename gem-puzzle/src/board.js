@@ -21,6 +21,7 @@ class Board {
     } while (!Board.isSolvable(this.array));
     this.tilesCoords = this.getTilesCoords();
     // this.mouseCoords = { x: null, y: null };
+    this.movesNumber = 0;
   }
 
   static getShuffledArray(arr) {
@@ -87,6 +88,7 @@ class Board {
       if ((isSameRow || isSameColumn) && this.array[elem] !== undefined && this.array[elem] === 0) {
         // console.log(this.array);
         [this.array[target], this.array[elem]] = [this.array[elem], this.array[target]];
+        this.movesNumber += 1;
       }
     });
   }
@@ -109,6 +111,15 @@ class Board {
     //   this.array = Board.getShuffledArray(this.aimArray);
     // } while (!Board.isSolvable(this.array));
     this.tilesCoords = this.getTilesCoords();
+  }
+
+  isSolved() {
+    for (let i = 0; i < this.boardLength; i += 1) {
+      if (this.array[i] !== this.aimArray[i]) {
+        return false;
+      }
+    }
+    return true;
   }
 }
 

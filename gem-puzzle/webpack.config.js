@@ -13,7 +13,7 @@ const config = {
   output: {
     filename: '[name].js',
     path: path.resolve(__dirname, 'dist'),
-    // assetModuleFilename: 'assets/[hash][ext]',
+    assetModuleFilename: 'assets/[name][ext]',
   },
   devServer: {
     open: true,
@@ -23,6 +23,7 @@ const config = {
     new HtmlWebpackPlugin({
       template: './src/index.html',
       inject: false,
+      favicon: './src/favicon.ico',
     }),
 
     new MiniCssExtractPlugin({
@@ -39,7 +40,7 @@ const config = {
         use: [MiniCssExtractPlugin.loader, 'css-loader'],
       },
       {
-        test: /\.(eot|svg|ttf|woff|woff2|png|jpg|gif|mp3|wav)$/i,
+        test: /\.(eot|svg|ttf|woff|woff2|png|jpg|gif|svg|ico|mp3|wav)$/i,
         type: 'asset/resource',
       },
 

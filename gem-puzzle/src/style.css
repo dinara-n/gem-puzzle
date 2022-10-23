@@ -25,6 +25,14 @@ body, h1, h2, h3, p, ul, ol, li {
   /* border-color: blue; */
 }
 
+.game-controls__btn--sound {
+  background-color: red;
+}
+
+.sound-on {
+  background-color: green;
+}
+
 .game-info {
   padding: 0 0 10px;
   width: 400px;
@@ -42,12 +50,31 @@ body, h1, h2, h3, p, ul, ol, li {
   max-width: 95%;
   max-height: 95%;
   background-color: beige;
+  /* background-color: black; */
   border-radius: 10px;
 }
 
 .gameboard {
   /* width: 100%;
   height: 100%; */
+}
+
+.game-records-popup {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.game-records-table {
+  color: white;
 }
 
 @media (max-width: 767px) {
