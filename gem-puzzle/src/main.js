@@ -1,6 +1,8 @@
+/* eslint-disable no-use-before-define */
 /* eslint-disable no-unused-vars */
 /* eslint-disable max-len */
 import './style.css';
+import Board from './board';
 
 document.addEventListener('DOMContentLoaded', () => {
   function addHtmlElement(tag, text = '', container = document.body, cssClass = '') {
@@ -38,115 +40,129 @@ document.addEventListener('DOMContentLoaded', () => {
   const gameMoves = addHtmlElement('p', 'Moves: ', gameInfo, 'game-info__moves');
   const gameMovesNumber = addHtmlElement('span', '0', gameMoves, 'game-info__moves-number');
   const gameBoardWrapper = addHtmlElement('section', null, mainContainer, 'gameboard-wrapper');
-  const gameBoard = addHtmlElement('canvas', null, gameBoardWrapper, 'gameboard');
-  // console.log(parseInt(window.getComputedStyle(gameBoard).getPropertyValue('width'), 10));
+  const gameBoard = addHtmlElement('canvas', 'Sorry! It seems your browser does not support HTML Canvas. Please try another browser.', gameBoardWrapper, 'gameboard');
+  gameBoard.width = 300;
+  gameBoard.height = 300;
+  // if (window.matchMedia('(max-width: 767px)').matches) {
+  //   console.log('aaaaa');
+  //   gameBoard.width = 300;
+  //   gameBoard.height = 300;
+  // }
 
-  class Board {
-    constructor(rowLength, gap) {
-      this.rowLength = rowLength;
-      this.boardLength = this.rowLength ** 2;
-      this.boardSize = Board.getBoardSize();
-      this.gapSize = gap;
-      this.tileSize = this.getTileSize();
-      this.aimArray = [];
-      for (let i = 0; i < this.boardLength; i += 1) {
-        if (i !== this.boardLength - 1) {
-          this.aimArray.push(i + 1);
+  let board = new Board(gameBoard, +sizeSelect.value, 5);
+  console.log(board);
+  const gameBoardTiles = [];
+
+  function drawTile(tile, xStart, xEnd, yStart, yEnd, curve, text) {
+    tile.moveTo(xStart, yStart + curve);
+    tile.quadraticCurveTo(xStart, yStart, xStart + curve, yStart);
+    tile.lineTo(xEnd - curve, yStart);
+    tile.quadraticCurveTo(xEnd, yStart, xEnd, yStart + curve);
+    tile.lineTo(xEnd, yEnd - curve);
+    tile.quadraticCurveTo(xEnd, yEnd, xEnd - curve, yEnd);
+    tile.lineTo(xStart + curve, yEnd);
+    tile.quadraticCurveTo(xStart, yEnd, xStart, yEnd - curve);
+    // tile.fillText(text, 20, 20);
+  }
+
+  function drawBoard() {
+    if (gameBoard.getContext) {
+      const ctx = gameBoard.getContext('2d');
+      ctx.clearRect(0, 0, gameBoard.width, gameBoard.height);
+      gameBoardTiles.length = 0;
+      board.array.forEach((elem, i) => {
+        if (elem) {
+          const tile = new Path2D();
+          // ctx.shadowOffsetX = 2;
+          // ctx.shadowOffsetY = 2;
+          // ctx.shadowBlur = 2;
+          // ctx.shadowColor = 'rgb(30, 30, 30)';
+          ctx.beginPath();
+          drawTile(tile, board.tilesCoords[i].xStart, board.tilesCoords[i].xEnd, board.tilesCoords[i].yStart, board.tilesCoords[i].yEnd, 5, elem);
+          ctx.fillStyle = 'orange';
+          ctx.fill(tile);
+          ctx.fillStyle = 'beige';
+          ctx.font = '2em Arial';
+          ctx.fillText(elem, board.tilesCoords[i].xStart + 20, board.tilesCoords[i].yStart + 40);
+          gameBoardTiles.push(tile);
         } else {
-          this.aimArray.push(0);
-        }
-      }
-      do {
-        this.array = Board.getShuffledArray(this.aimArray);
-      } while (!Board.isSolvable(this.array));
-      this.tilesCoords = this.getTilesCoords();
-    }
-
-    static getShuffledArray(arr) {
-      const newArr = Array.from(arr);
-      for (let i = newArr.length - 1; i > 0; i -= 1) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [newArr[i], newArr[j]] = [newArr[j], newArr[i]];
-      }
-      return newArr;
-    }
-
-    static isSolvable(arr) {
-      const arrRowLength = Math.sqrt(arr.length);
-      let sum = 0;
-      for (let i = 0; i < arr.length - 1; i += 1) {
-        for (let j = i + 1; j < arr.length; j += 1) {
-          if (arr[i] !== 0 && arr[j] !== 0 && arr[i] > arr[j]) {
-            sum += 1;
-          }
-        }
-      }
-      if (arrRowLength % 2) {
-        // console.log(sum);
-        return sum % 2 === 0;
-      }
-      sum += Math.trunc(arr.indexOf(0) / arrRowLength);
-      // console.log(sum);
-      return sum % 2 !== 0;
-    }
-
-    static getBoardSize() {
-      return parseInt(window.getComputedStyle(gameBoard).getPropertyValue('width'), 10);
-    }
-
-    getTileSize() {
-      return Math.floor((this.boardSize - this.gapSize * (this.rowLength + 1)) / this.rowLength);
-    }
-
-    getTilesCoords() {
-      const arr = [];
-      this.array.forEach((elem, i) => {
-        const columnNumber = i % this.rowLength;
-        const xStart = this.gapSize + columnNumber * (this.tileSize + this.gapSize);
-        const xEnd = xStart + this.tileSize;
-        const rowNumber = Math.trunc(i / this.rowLength);
-        const yStart = this.gapSize + rowNumber * (this.tileSize + this.gapSize);
-        const yEnd = yStart + this.tileSize;
-        arr.push({
-          xStart, xEnd, yStart, yEnd,
-        });
-      });
-      return arr;
-    }
-
-    swapTiles(target) {
-      // const tiles = [this.array[target - 1], this.array[target + 1], this.array[target - this.rowLength], this.array[target + this.rowLength]];
-      // console.log(tiles);
-      // tiles.forEach((elem) => {
-      //   console.log(target, elem);
-      //   if (elem !== undefined && elem === 0) {
-      //     console.log(this.array);
-      //     [target, elem] = [elem, target];
-      //   }
-      // });
-      const indexes = [target - 1, target + 1, target - this.rowLength, target + this.rowLength];
-      if (this.array[target] === undefined) return;
-      indexes.forEach((elem) => {
-        // console.log(target, elem);
-        if (this.array[elem] !== undefined && this.array[elem] === 0) {
-          // console.log(this.array);
-          [this.array[target], this.array[elem]] = [this.array[elem], this.array[target]];
+          gameBoardTiles.push(null);
         }
       });
+      // console.log(gameBoardTiles);
     }
   }
 
-  let board = new Board(+sizeSelect.value, 10);
-  console.log(board);
-  // console.log(board.array.indexOf(0));
-  // console.log(board.array[board.array.indexOf(0) - 1]);
-  // board.swapTiles(board.array.indexOf(0) - 1);
+  drawBoard();
+
+  // window.matchMedia('(max-width: 767px)').addEventListener('change', () => {
+  //   console.log('small');
+  // gameBoard.remove();
+  // gameBoard = addHtmlElement('canvas', 'Sorry! It seems your browser does not support HTML Canvas. Please try another browser.', gameBoardWrapper, 'gameboard');
+  // gameBoardWrapper.append(gameBoard);
+  // gameBoard.width = 300;
+  // gameBoard.height = 300;
+  // board.recalculateStats();
   // console.log(board);
+  // drawBoard();
+  // });
+
+  // window.matchMedia('(min-width: 768px)').addEventListener('change', () => {
+  //   console.log('big');
+  // gameBoard.remove();
+  // gameBoard = addHtmlElement('canvas', 'Sorry! It seems your browser does not support HTML Canvas. Please try another browser.', gameBoardWrapper, 'gameboard');
+  // gameBoardWrapper.append(gameBoard);
+  // gameBoard.width = 500;
+  // gameBoard.height = 500;
+  // board.recalculateStats();
+  // console.log(board);
+  // drawBoard();
+  // });
 
   sizeSelect.addEventListener('change', () => {
-    board = new Board(+sizeSelect.value, 10);
+    board = new Board(gameBoard, +sizeSelect.value, 5);
     console.log(board);
   });
+
+  btnNew.addEventListener('click', () => {
+    board = new Board(gameBoard, +sizeSelect.value, 5);
+    drawBoard();
+  });
+
+  function boardDrag(evt) {
+    evt.preventDefault();
+    gameBoard.removeEventListener('mouseup', boardMouseUp);
+    gameBoard.removeEventListener('mousemove', boardDrag);
+    console.log('mousemove');
+  }
+
+  function boardMouseDown() {
+    gameBoard.addEventListener('mousemove', boardDrag);
+    gameBoard.addEventListener('mouseup', boardMouseUp);
+  }
+
+  function boardMouseUp(evt) {
+    gameBoard.removeEventListener('mousemove', boardDrag);
+    gameBoard.removeEventListener('mouseup', boardMouseUp);
+    console.log('click');
+    const bounding = gameBoard.getBoundingClientRect();
+    const x = evt.clientX - bounding.left;
+    const y = evt.clientY - bounding.top;
+    // console.log(x, y);
+    for (let i = 0; i < board.boardLength; i += 1) {
+      const elem = board.tilesCoords[i];
+      // console.log(elem.xStart);
+      if ((x >= elem.xStart) && (x <= elem.xEnd) && (y >= elem.yStart) && (y <= elem.yEnd)) {
+        // console.log(board.array.join(', '));
+        board.swapTiles(i);
+        // console.log(board.array.join(', '));
+        drawBoard();
+        break;
+      }
+    }
+  }
+
+  gameBoard.addEventListener('mousedown', boardMouseDown);
 
   // const rowLength = 4;
   // const boardLength = rowLength ** 2;
