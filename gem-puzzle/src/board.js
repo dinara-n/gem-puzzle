@@ -22,6 +22,11 @@ class Board {
     this.tilesCoords = this.getTilesCoords();
     // this.mouseCoords = { x: null, y: null };
     this.movesNumber = 0;
+    this.areTilesSwapping = false;
+    this.tileToSwap = null;
+    this.tileTarget = null;
+    this.movingTilePrevCoords = null;
+    this.movingTileNewCoords = null;
   }
 
   static getShuffledArray(arr) {
@@ -87,7 +92,16 @@ class Board {
       const isSameColumn = target % this.rowLength === elem % this.rowLength;
       if ((isSameRow || isSameColumn) && this.array[elem] !== undefined && this.array[elem] === 0) {
         // console.log(this.array);
+        this.areTilesSwapping = true;
+        this.tileToSwap = target;
+        this.tileTarget = elem;
+        this.movingTilePrevCoords = { ...this.tilesCoords[target] };
+        this.movingTileNewCoords = { ...this.tilesCoords[elem] };
+        console.log(this.movingTilePrevCoords, this.movingTileNewCoords);
         [this.array[target], this.array[elem]] = [this.array[elem], this.array[target]];
+        // this.tileToSwap = target;
+        // this.movingTilePrevCoords = { ...this.tilesCoords[target] };
+        // this.movingTileNewCoords = { ...this.tilesCoords[elem] };
         this.movesNumber += 1;
       }
     });
