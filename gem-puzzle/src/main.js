@@ -492,7 +492,7 @@ document.addEventListener('DOMContentLoaded', () => {
     mouseX = evt.clientX - bounding.left;
     mouseY = evt.clientY - bounding.top;
 
-    gameBoard.addEventListener('mousemove', boardDrag);
+    // gameBoard.addEventListener('mousemove', boardDrag);
     gameBoard.addEventListener('mouseup', boardMouseClick);
   }
 
