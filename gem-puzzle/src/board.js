@@ -21,12 +21,14 @@ class Board {
     } while (!Board.isSolvable(this.array));
     this.tilesCoords = this.getTilesCoords();
     // this.mouseCoords = { x: null, y: null };
+    this.zeroIndex = this.getZeroIndex();
     this.movesNumber = 0;
     this.areTilesSwapping = false;
     this.tileToSwap = null;
     this.tileTarget = null;
     this.movingTilePrevCoords = null;
     this.movingTileNewCoords = null;
+    this.tileMovingIndex = null;
   }
 
   static getShuffledArray(arr) {
@@ -55,6 +57,16 @@ class Board {
     sum += Math.trunc(arr.indexOf(0) / arrRowLength);
     // console.log(sum);
     return sum % 2 !== 0;
+  }
+
+  getZeroIndex() {
+    let zeroIndex = null;
+    this.array.forEach((elem, i) => {
+      if (elem === 0) {
+        zeroIndex = i;
+      }
+    });
+    return zeroIndex;
   }
 
   getBoardSize() {
@@ -99,12 +111,23 @@ class Board {
         this.movingTileNewCoords = { ...this.tilesCoords[elem] };
         console.log(this.movingTilePrevCoords, this.movingTileNewCoords);
         [this.array[target], this.array[elem]] = [this.array[elem], this.array[target]];
-        // this.tileToSwap = target;
-        // this.movingTilePrevCoords = { ...this.tilesCoords[target] };
-        // this.movingTileNewCoords = { ...this.tilesCoords[elem] };
         this.movesNumber += 1;
       }
     });
+  }
+
+  checkTileCanMove(targetIndex) {
+    const indexes = [targetIndex - 1, targetIndex + 1, targetIndex - this.rowLength, targetIndex + this.rowLength];
+    // if (this.array[targetIndex] === undefined) return;
+    // eslint-disable-next-line no-restricted-syntax, prefer-const
+    for (let elem of indexes) {
+      const isSameRow = Math.trunc(targetIndex / this.rowLength) === Math.trunc(elem / this.rowLength);
+      const isSameColumn = targetIndex % this.rowLength === elem % this.rowLength;
+      if ((isSameRow || isSameColumn) && this.array[elem] !== undefined && this.array[elem] === 0) {
+        return true;
+      }
+    }
+    return false;
   }
 
   recalculateStats() {

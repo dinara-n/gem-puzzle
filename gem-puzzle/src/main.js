@@ -58,6 +58,10 @@ document.addEventListener('DOMContentLoaded', () => {
   //   gameBoard.height = 300;
   // }
 
+  const pageBackground = addHtmlElement('canvas', '', document.body, 'page-background');
+  pageBackground.width = window.innerWidth;
+  pageBackground.height = window.innerHeight;
+
   const gameSettings = JSON.parse(localStorage.getItem('gemPuzzleByDinaraN_gameSettings')) || {};
   if (gameSettings.sound) {
     audioTileMoving.muted = false;
@@ -88,13 +92,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let board = new Board(gameBoard, +sizeSelect.value, 8);
   console.log(board);
-  const gameBoardTiles = [];
+  // const gameBoardTiles = [];
   const ctx = gameBoard.getContext('2d');
-  let xOffset = 0;
-  let yOffset = 0;
+  let xShift = 0;
+  let yShift = 0;
+  // let xOffset = 0;
+  // let yOffset = 0;
   let xDirection = null;
   let yDirection = null;
   let tileSwapComplete = false;
+  let isTileDragged = false;
+  let mouseX = 0;
+  let mouseY = 0;
+  let mouseXOffset = 0;
+  let mouseYOffset = 0;
+  let isBoardDrawn = true;
   console.log(ctx);
 
   function drawSquare(tile, xStart, xEnd, yStart, yEnd, curve) {
@@ -113,96 +125,86 @@ document.addEventListener('DOMContentLoaded', () => {
   // eslint-disable-next-line no-shadow
   function drawTile(ctx, elem, i) {
     // const ctx = gameBoard.getContext('2d');
-    // let xStart = board.tilesCoords[i].xStart;
-    // let xEnd = board.tilesCoords[i].xEnd;
-    // let yStart = board.tilesCoords[i].yStart;
-    // let yEnd = board.tilesCoords[i].yEnd;
+    const offsetPerFrame = (board.tileSize + board.gapSize) / 50;
     let tileNumber = elem;
     let {
       xStart, xEnd, yStart, yEnd,
     } = { ...board.tilesCoords[i] };
+
     if (board.areTilesSwapping) {
       ctx.clearRect(board.movingTilePrevCoords.xStart - 2, board.movingTilePrevCoords.yStart - 2, board.tileSize + 4, board.tileSize + 4);
       tileNumber = board.array[board.tileTarget];
-      console.log(board.movingTilePrevCoords);
-      console.log(board.tileToSwap);
-      console.log(board.array);
-      console.log(board.areTilesSwapping, tileSwapComplete);
-      if ((xDirection === 'right' && (board.movingTilePrevCoords.xStart + xOffset >= board.movingTileNewCoords.xStart))
-      || (xDirection === 'left' && (board.movingTilePrevCoords.xStart + xOffset <= board.movingTileNewCoords.xStart))) {
-        console.log('one');
-        xOffset = 0;
+      // console.log(board.movingTilePrevCoords);
+      // console.log(board.areTilesSwapping, tileSwapComplete);
+
+      // If tile reached destination
+
+      if ((xDirection === 'right' && (board.movingTilePrevCoords.xStart + xShift >= board.movingTileNewCoords.xStart))
+      || (xDirection === 'left' && (board.movingTilePrevCoords.xStart + xShift <= board.movingTileNewCoords.xStart))) {
+        xShift = 0;
         xDirection = null;
         xStart = board.movingTileNewCoords.xStart;
         xEnd = board.movingTileNewCoords.xEnd;
-        // yStart = board.movingTileNewCoords.yStart;
-        // yEnd = board.movingTileNewCoords.yEnd;
         board.movingTilePrevCoords = null;
+        board.movingTileNewCoords = null;
         tileSwapComplete = true;
         board.areTilesSwapping = false;
         board.tileToSwap = null;
         board.tileTarget = null;
-        board.movingTileNewCoords = null;
       } else {
-        console.log('two');
-        console.log(xOffset);
-        if (xDirection === 'right') {
-          xOffset += (board.tileSize + board.gapSize) / 50;
-          board.movingTilePrevCoords.xStart += xOffset;
-          board.movingTilePrevCoords.xEnd += xOffset;
-          xStart = board.movingTilePrevCoords.xStart;
-          xEnd = board.movingTilePrevCoords.xEnd;
-        } else if (xDirection === 'left') {
-          xOffset -= (board.tileSize + board.gapSize) / 50;
-          board.movingTilePrevCoords.xStart += xOffset;
-          board.movingTilePrevCoords.xEnd += xOffset;
+        // If tile is still moving
+
+        xShift = (xDirection === 'right') ? (xShift + offsetPerFrame) : (xDirection === 'left') ? (xShift - offsetPerFrame) : xShift;
+        if (xDirection === 'right' || xDirection === 'left') {
+          board.movingTilePrevCoords.xStart += xShift;
+          board.movingTilePrevCoords.xEnd += xShift;
           xStart = board.movingTilePrevCoords.xStart;
           xEnd = board.movingTilePrevCoords.xEnd;
         }
       }
-      if ((yDirection === 'down' && (board.movingTilePrevCoords.yStart + yOffset >= board.movingTileNewCoords.yStart))
-      || (yDirection === 'up' && (board.movingTilePrevCoords.yStart + yOffset <= board.movingTileNewCoords.yStart))) {
-        yOffset = 0;
+
+      // If tile reached destination
+
+      if ((yDirection === 'down' && (board.movingTilePrevCoords.yStart + yShift >= board.movingTileNewCoords.yStart))
+      || (yDirection === 'up' && (board.movingTilePrevCoords.yStart + yShift <= board.movingTileNewCoords.yStart))) {
+        yShift = 0;
         yDirection = null;
-        // xStart = board.movingTileNewCoords.xStart;
-        // xEnd = board.movingTileNewCoords.xEnd;
         yStart = board.movingTileNewCoords.yStart;
         yEnd = board.movingTileNewCoords.yEnd;
         board.movingTilePrevCoords = null;
+        board.movingTileNewCoords = null;
         tileSwapComplete = true;
         board.areTilesSwapping = false;
         board.tileToSwap = null;
         board.tileTarget = null;
-        board.movingTileNewCoords = null;
       } else {
-        // yOffset += (board.tileSize + board.gapSize) / 50;
-        // eslint-disable-next-line no-lonely-if
-        if (yDirection === 'down') {
-          yOffset += (board.tileSize + board.gapSize) / 50;
-          board.movingTilePrevCoords.yStart += yOffset;
-          board.movingTilePrevCoords.yEnd += yOffset;
-          yStart = board.movingTilePrevCoords.yStart;
-          yEnd = board.movingTilePrevCoords.yEnd;
-        } else if ((yDirection === 'up')) {
-          yOffset -= (board.tileSize + board.gapSize) / 50;
-          board.movingTilePrevCoords.yStart += yOffset;
-          board.movingTilePrevCoords.yEnd += yOffset;
+        // If tile is still moving
+
+        yShift = (yDirection === 'down') ? (yShift + offsetPerFrame) : (yDirection === 'up') ? (yShift - offsetPerFrame) : yShift;
+        if (yDirection === 'down' || yDirection === 'up') {
+          board.movingTilePrevCoords.yStart += yShift;
+          board.movingTilePrevCoords.yEnd += yShift;
           yStart = board.movingTilePrevCoords.yStart;
           yEnd = board.movingTilePrevCoords.yEnd;
         }
       }
-      // ctx.clearRect(board.tilesCoords[i].xStart + xOffset, board.tilesCoords[i].yStart + yOffset, board.tileSize, board.tileSize);
-      // xDirection = (board.movingTileNewCoords.xStart > board.movingTilePrevCoords.xStart) ? 'right' : (board.movingTileNewCoords.xStart < board.movingTilePrevCoords.xStart) ? 'left' : null;
-      // yDirection = (board.movingTileNewCoords.yStart > board.movingTilePrevCoords.yStart) ? 'down' : (board.movingTileNewCoords.yStart < board.movingTilePrevCoords.yStart) ? 'up' : null;
     }
+
+    if (isTileDragged && isBoardDrawn) {
+      tileNumber = board.array[board.tileMovingIndex];
+      xStart = mouseX - mouseXOffset;
+      xEnd = xStart + board.tileSize;
+      yStart = mouseY - mouseYOffset;
+      yEnd = yStart + board.tileSize;
+      // console.log('animation on drag');
+      // console.log(xStart, xEnd, yStart, yEnd);
+      // drawBoard();
+    }
+
     const tile = new Path2D();
-    // ctx.shadowOffsetX = 2;
-    // ctx.shadowOffsetY = 2;
-    // ctx.shadowBlur = 2;
-    // ctx.shadowColor = 'black';
     ctx.beginPath();
     drawSquare(tile, xStart, xEnd, yStart, yEnd, 5);
-    ctx.fillStyle = 'orange';
+    // ctx.fillStyle = 'orange';
     // ctx.fill(tile);
     ctx.lineWidth = '2';
     ctx.strokeStyle = 'rgb(247, 205, 9)';
@@ -214,22 +216,26 @@ document.addEventListener('DOMContentLoaded', () => {
     ctx.fillText(tileNumber, xStart + (board.tileSize - ctx.measureText(tileNumber).width) * 0.5, yStart + board.tileSize * 0.5);
 
     if (board.areTilesSwapping && !tileSwapComplete) {
-      console.log('animation');
+      console.log('animation on click');
+      // drawBoard();
       // eslint-disable-next-line prefer-arrow-callback, func-names
       window.requestAnimationFrame(function () { drawTile(ctx, board.array[board.tileToSwap], board.tileToSwap); });
+    }
+
+    if (isTileDragged && isBoardDrawn) {
+      isBoardDrawn = false;
     }
   }
 
   function drawBoard() {
     if (gameBoard.getContext) {
-      // const ctx = gameBoard.getContext('2d');
       ctx.clearRect(0, 0, gameBoard.width, gameBoard.height);
-      gameBoardTiles.length = 0;
       board.array.forEach((elem, i) => {
-        if (elem) {
+        if (elem && (i !== board.tileMovingIndex)) {
           drawTile(ctx, elem, i);
         }
       });
+      isBoardDrawn = true;
     }
   }
 
@@ -259,6 +265,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // drawBoard();
   // });
 
+  // Listening to Board Size Selection
+
   sizeSelect.addEventListener('change', () => {
     board = new Board(gameBoard, +sizeSelect.value, 8);
     drawBoard();
@@ -273,7 +281,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // iterateTime();
     gameTime.style.color = 'white';
     gameMoves.style.color = 'white';
+    gameBoard.addEventListener('mousedown', boardMouseDown);
   });
+
+  // Listening to New Game button
 
   btnNew.addEventListener('click', () => {
     board = new Board(gameBoard, +sizeSelect.value, 8);
@@ -287,7 +298,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // iterateTime();
     gameTime.style.color = 'white';
     gameMoves.style.color = 'white';
+    gameBoard.addEventListener('mousedown', boardMouseDown);
   });
+
+  // Listening to Save button
 
   btnSave.addEventListener('click', () => {
     const gameStats = {};
@@ -295,8 +309,11 @@ document.addEventListener('DOMContentLoaded', () => {
     gameStats.timer = gameTimer.textContent;
     gameStats.moves = gameMovesNumber.textContent;
     gameStats.array = board.array.slice();
+    gameStats.zIndex = board.zIndex;
     localStorage.setItem('gemPuzzleByDinaraN_gameStats', JSON.stringify(gameStats));
   });
+
+  // Listening to Saved Game button
 
   btnSaved.addEventListener('click', () => {
     const gameStats = JSON.parse(localStorage.getItem('gemPuzzleByDinaraN_gameStats'));
@@ -309,12 +326,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // iterateTime();
     board = new Board(gameBoard, +sizeSelect.value, 8);
     board.array = gameStats.array.slice();
+    board.zeroIndex = board.getZeroIndex();
     board.movesNumber = +gameStats.moves;
     gameMovesNumber.textContent = board.movesNumber;
     drawBoard();
     gameTime.style.color = 'white';
     gameMoves.style.color = 'white';
+    gameBoard.addEventListener('mousedown', boardMouseDown);
   });
+
+  // Listening to Sound button
 
   btnSound.addEventListener('click', () => {
     if (btnSound.classList.contains('sound-on')) {
@@ -327,6 +348,8 @@ document.addEventListener('DOMContentLoaded', () => {
     gameSettings.sound = btnSound.classList.contains('sound-on');
     localStorage.setItem('gemPuzzleByDinaraN_gameSettings', JSON.stringify(gameSettings));
   });
+
+  // Listening to Records button
 
   btnRecords.addEventListener('click', () => {
     clearInterval(iterateTime);
@@ -348,8 +371,10 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
 
+    // Listening to Close Records pop-up
+
     gameRecordsPopUp.addEventListener('click', () => {
-      setInterval(iterateTime, 100);
+      // setInterval(iterateTime, 100);
       // iterateTime();
       gameRecordsPopUp.remove();
     });
@@ -360,22 +385,122 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  function showWinningMessage() {
+    console.log('Solved!');
+    clearInterval(iterateTime);
+    // stopIteratingTime();
+    gameTime.style.color = 'black';
+    gameMoves.style.color = 'black';
+    const gameSolvedPopUp = addHtmlElement('div', null, document.body, 'game-solved-popup');
+    const gameSolvedPopUpMessage = addHtmlElement('h2', `Hooray! You solved the puzzle in ${gameTimer.textContent} and ${board.movesNumber} moves!`, gameSolvedPopUp, 'game-solved-popup__message');
+    gameSolvedPopUp.addEventListener('click', () => {
+      gameSolvedPopUp.remove();
+    });
+    window.addEventListener('keydown', (keyDown) => {
+      if (keyDown.key === 'Escape') {
+        gameSolvedPopUp.remove();
+      }
+    });
+  }
+
+  function updateRecords() {
+    const time = gameTimer.textContent;
+    const moves = board.movesNumber;
+    gameRecords.push({ time, moves });
+    gameRecords.sort((a, b) => a.moves - b.moves);
+    gameRecords.length = (gameRecords.length > 10) ? 10 : gameRecords.length;
+    console.log(gameRecords);
+    localStorage.setItem('gemPuzzleByDinaraN_gameRecords', JSON.stringify(gameRecords));
+  }
+
   function boardDrag(evt) {
     evt.preventDefault();
-    gameBoard.removeEventListener('mouseup', boardMouseUp);
-    gameBoard.removeEventListener('mousemove', boardDrag);
-    console.log('mousemove');
+    gameBoard.removeEventListener('mouseup', boardMouseClick);
+    // gameBoard.removeEventListener('mousemove', boardDrag);
+    document.body.addEventListener('mouseup', boardStopDrag);
+    // console.log('mousemove');
+
+    if (isTileDragged) {
+      const bounding = gameBoard.getBoundingClientRect();
+      mouseX = evt.clientX - bounding.left;
+      mouseY = evt.clientY - bounding.top;
+      drawBoard();
+      drawTile(ctx, board.array[board.tileMovingIndex], board.tileMovingIndex);
+    }
+    // console.log(mouseX, mouseY);
+    if (!isTileDragged) {
+      console.log('mousemove');
+      for (let i = 0; i < board.boardLength; i += 1) {
+        const elem = board.tilesCoords[i];
+        // console.log(elem.xStart);
+        if ((mouseX >= elem.xStart) && (mouseX <= elem.xEnd) && (mouseY >= elem.yStart) && (mouseY <= elem.yEnd) && board.checkTileCanMove(i)) {
+          mouseXOffset = mouseX - elem.xStart;
+          mouseYOffset = mouseY - elem.yStart;
+          isTileDragged = true;
+          board.tileMovingIndex = i;
+          // drawBoard();
+          // // eslint-disable-next-line no-loop-func, prefer-arrow-callback
+          // window.requestAnimationFrame(function () { drawTile(ctx, board.array[i], i); });
+          break;
+        }
+      }
+    }
   }
 
-  function boardMouseDown() {
-    gameBoard.addEventListener('mousemove', boardDrag);
-    gameBoard.addEventListener('mouseup', boardMouseUp);
+  function boardStopDrag() {
+    gameBoard.removeEventListener('mousemove', boardDrag);
+    gameBoard.removeEventListener('mouseup', boardStopDrag);
+    const zeroCoords = board.tilesCoords[board.zeroIndex];
+    if (isTileDragged && (mouseX >= zeroCoords.xStart) && (mouseX <= zeroCoords.xEnd) && (mouseY >= zeroCoords.yStart) && (mouseY <= zeroCoords.yEnd)) {
+      console.log('yes');
+      console.log(`board.tileMovingIndex: ${board.tileMovingIndex}, board.zeroIndex: ${board.zeroIndex}`);
+      const coords = board.tilesCoords;
+      [board.array[board.tileMovingIndex], board.array[board.zeroIndex]] = [board.array[board.zeroIndex], board.array[board.tileMovingIndex]];
+      board.zeroIndex = board.tileMovingIndex;
+      // [coords[board.tileMovingIndex].xStart, coords[board.zeroIndex].xStart] = [coords[board.zeroIndex].xStart, coords[board.tileMovingIndex].xStart];
+      // [coords[board.tileMovingIndex].xEnd, coords[board.zeroIndex].xEnd] = [coords[board.zeroIndex].xEnd, coords[board.tileMovingIndex].xEnd];
+      // [coords[board.tileMovingIndex].yStart, coords[board.zeroIndex].yStart] = [coords[board.zeroIndex].yStart, coords[board.tileMovingIndex].yStart];
+      // [coords[board.tileMovingIndex].yEnd, coords[board.zeroIndex].yEnd] = [coords[board.zeroIndex].yEnd, coords[board.tileMovingIndex].yEnd];
+      // board.tilesCoords = board.getTilesCoords();
+      board.movesNumber += 1;
+      gameMovesNumber.textContent = board.movesNumber;
+
+      if (board.isSolved()) {
+        gameBoard.removeEventListener('mousedown', boardMouseDown);
+        showWinningMessage();
+        if ((board.movesNumber < +gameRecords.at(-1).moves) || gameRecords.length < 10) {
+          updateRecords();
+        }
+      }
+    }
+    console.log(board.array);
+    // isBoardDrawn = false;
+    // drawBoard();
+    isTileDragged = false;
+    board.tileMovingIndex = null;
+    mouseX = 0;
+    mouseY = 0;
+    mouseXOffset = 0;
+    mouseYOffset = 0;
+    isBoardDrawn = false;
+    drawBoard();
+    // console.log(`Stopping drag, isTileDrag = ${isTileDragged}, board.tileMovingIndex = ${board.tileMovingIndex}`);
   }
 
-  function boardMouseUp(evt) {
+  function boardMouseDown(evt) {
+    const bounding = gameBoard.getBoundingClientRect();
+    mouseX = evt.clientX - bounding.left;
+    mouseY = evt.clientY - bounding.top;
+
+    // gameBoard.addEventListener('mousemove', boardDrag);
+    gameBoard.addEventListener('mouseup', boardMouseClick);
+  }
+
+  function boardMouseClick(evt) {
     gameBoard.removeEventListener('mousemove', boardDrag);
-    gameBoard.removeEventListener('mouseup', boardMouseUp);
+    gameBoard.removeEventListener('mouseup', boardMouseClick);
     console.log('click');
+    // console.log(`Clicking, isTileDrag = ${isTileDragged}, board.tileMovingIndex = ${board.tileMovingIndex}`);
     const bounding = gameBoard.getBoundingClientRect();
     const x = evt.clientX - bounding.left;
     const y = evt.clientY - bounding.top;
@@ -387,8 +512,6 @@ document.addEventListener('DOMContentLoaded', () => {
         board.swapTiles(i);
         if (board.areTilesSwapping) {
           audioTileMoving.play();
-          // drawBoard();
-          // window.requestAnimationFrame(drawTile(ctx, board.array[board.tileToSwap], board.tileToSwap));
           xDirection = (board.movingTileNewCoords.xStart > board.movingTilePrevCoords.xStart) ? 'right' : (board.movingTileNewCoords.xStart < board.movingTilePrevCoords.xStart) ? 'left' : null;
           yDirection = (board.movingTileNewCoords.yStart > board.movingTilePrevCoords.yStart) ? 'down' : (board.movingTileNewCoords.yStart < board.movingTilePrevCoords.yStart) ? 'up' : null;
           // console.log(board.movingTilePrevCoords, board.movingTileNewCoords);
@@ -396,6 +519,7 @@ document.addEventListener('DOMContentLoaded', () => {
           tileSwapComplete = false;
           // eslint-disable-next-line prefer-arrow-callback, func-names, no-loop-func
           window.requestAnimationFrame(function () { drawTile(ctx, board.array[board.tileToSwap], board.tileToSwap); });
+          board.zeroIndex = i;
           gameMovesNumber.textContent = board.movesNumber;
         }
         // board.areTilesSwapping = false;
@@ -403,51 +527,78 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
     if (board.isSolved()) {
-      console.log('Solved!');
-      clearInterval(iterateTime);
-      // stopIteratingTime();
-      gameTime.style.color = 'black';
-      gameMoves.style.color = 'black';
-      const gameSolvedPopUp = addHtmlElement('div', null, document.body, 'game-solved-popup');
-      const gameSolvedPopUpMessage = addHtmlElement('h2', `Hooray! You solved the puzzle in ${gameTimer.textContent} and ${board.movesNumber} moves!`, gameSolvedPopUp, 'game-solved-popup__message');
-      gameSolvedPopUp.addEventListener('click', () => {
-        gameSolvedPopUp.remove();
-      });
-      window.addEventListener('keydown', (keyDown) => {
-        if (keyDown.key === 'Escape') {
-          gameSolvedPopUp.remove();
-        }
-      });
+      gameBoard.removeEventListener('mousedown', boardMouseDown);
+      showWinningMessage();
       if ((board.movesNumber < +gameRecords.at(-1).moves) || gameRecords.length < 10) {
-        const time = gameTimer.textContent;
-        const moves = board.movesNumber;
-        gameRecords.push({ time, moves });
-        gameRecords.sort((a, b) => a.moves - b.moves);
-        gameRecords.length = (gameRecords.length > 10) ? 10 : gameRecords.length;
-        console.log(gameRecords);
-        localStorage.setItem('gemPuzzleByDinaraN_gameRecords', JSON.stringify(gameRecords));
+        updateRecords();
       }
     }
   }
 
   gameBoard.addEventListener('mousedown', boardMouseDown);
 
-  // const rowLength = 4;
-  // const boardLength = rowLength ** 2;
+  // Page background - Stars
 
-  // function printA(a) {
-  //   for (let i = 0; i < boardLength; i += rowLength) {
-  //     console.log(a[i + 0], a[i + 1], a[i + 2], a[i + 3]);
-  //   }
-  // }
+  function drawStarsBg() {
+    const starsNumber = Math.trunc(Math.random() * window.innerWidth * window.innerHeight * 0.001) + 30;
+    console.log(`Stars number: ${starsNumber}`);
+    const stars = [];
+    for (let i = 0; i < starsNumber; i += 1) {
+      const x = Math.trunc(Math.random() * window.innerWidth + 1);
+      const y = Math.trunc(Math.random() * window.innerHeight + 1);
+      const radius = Number((Math.random() * 1.8).toFixed(2));
+      stars.push({ x, y, radius });
+    }
 
-  // printA(finArray);
-  // console.log(isSolvable(finArray));
-  // shuffleArray(finArray);
-  // printA(finArray);
-  // console.log(isSolvable(finArray));
+    function drawStar(x, y, radius) {
+      const bgCtx = pageBackground.getContext('2d');
+      bgCtx.beginPath();
+      bgCtx.arc(x, y, radius, 0, Math.PI * 2, true);
+      bgCtx.fillStyle = 'white';
+      bgCtx.shadowColor = 'white';
+      bgCtx.shadowBlur = 10;
+      bgCtx.fill();
+    }
 
-  // document.addEventListener('onbeforeunload', () => {
+    if (pageBackground.getContext) {
+      const bgCtx = pageBackground.getContext('2d');
+      bgCtx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+      stars.forEach((elem) => {
+        drawStar(elem.x, elem.y, elem.radius);
+      });
+    }
+  }
 
-  // });
+  drawStarsBg();
+
+  // The stars get distorted when you change the screen size after the background is drawn.
+  // Of course regular users won't be dragging the browser's edge back and forth, and changing the page width, but just in case:
+
+  window.matchMedia('(max-width: 469px)').addEventListener('change', () => {
+    drawStarsBg();
+  });
+
+  window.matchMedia('(min-width: 470px) and (max-width: 767px)').addEventListener('change', () => {
+    drawStarsBg();
+  });
+
+  window.matchMedia('(min-width: 768px) and (max-width: 979px)').addEventListener('change', () => {
+    drawStarsBg();
+  });
+
+  window.matchMedia('(min-width: 980px) and (max-width: 1199px)').addEventListener('change', () => {
+    drawStarsBg();
+  });
+
+  window.matchMedia('(min-width: 1200px) and (max-width: 1399px)').addEventListener('change', () => {
+    drawStarsBg();
+  });
+
+  window.matchMedia('(min-width: 1400px) and (max-width: 1599px)').addEventListener('change', () => {
+    drawStarsBg();
+  });
+
+  window.matchMedia('(min-width: 1600px)').addEventListener('change', () => {
+    drawStarsBg();
+  });
 });
