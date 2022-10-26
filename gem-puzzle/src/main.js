@@ -4,12 +4,12 @@
 /* eslint-disable max-len */
 import './style.css';
 import Board from './board';
-import './assets/tile-move-short.mp3';
+import './assets/click.mp3';
 import './assets/apple-icon-180x180.png';
 import './assets/sound-icon-30x30.png';
 
-const audioTileMoving = new Audio('./assets/tile-move-short.mp3');
-audioTileMoving.volume = 0.3;
+const audioTileMoving = new Audio('./assets/click.mp3');
+audioTileMoving.volume = 0.2;
 audioTileMoving.muted = true;
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -225,7 +225,10 @@ document.addEventListener('DOMContentLoaded', () => {
     ctx.stroke(tile);
     ctx.fillStyle = 'rgb(247, 205, 9)';
     // ctx.fillStyle = 'black';
-    ctx.font = `${board.tileSize * 0.5}px Arial`;
+    // ctx.font = `${board.tileSize * 0.5}px Arial`;
+    // ctx.font = `${board.tileSize * 0.5}px "Share Tech Mono"`;
+    // ctx.font = `${board.tileSize * 0.5}px "Unica One"`;
+    ctx.font = `${board.tileSize * 0.5}px "Audiowide"`;
     ctx.textBaseline = 'middle';
     ctx.fillText(tileNumber, xStart + (board.tileSize - ctx.measureText(tileNumber).width) * 0.5, yStart + board.tileSize * 0.5);
 
@@ -256,6 +259,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // If font is not loaded in time, and board is drawn with the default one
+
+  setTimeout(() => {
+    isBoardDrawn = false;
+    drawBoard();
+  }, 500);
   drawBoard();
 
   // window.matchMedia('(max-width: 767px)').addEventListener('change', () => {
@@ -488,6 +497,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // board.tilesCoords = board.getTilesCoords();
       board.movesNumber += 1;
       gameMovesNumber.textContent = board.movesNumber;
+      audioTileMoving.play();
 
       if (board.isSolved()) {
         gameBoard.removeEventListener('mousedown', boardMouseDown);
@@ -567,21 +577,32 @@ document.addEventListener('DOMContentLoaded', () => {
   // Page background - Stars
 
   function drawStarsBg() {
-    const starsNumber = Math.trunc(Math.random() * window.innerWidth * window.innerHeight * 0.001) + 30;
+    const starsNumber = Math.trunc(window.innerWidth * window.innerHeight * 0.001) + Math.trunc(Math.random() * 100);
     console.log(`Stars number: ${starsNumber}`);
     const stars = [];
     for (let i = 0; i < starsNumber; i += 1) {
       const x = Math.trunc(Math.random() * window.innerWidth + 1);
       const y = Math.trunc(Math.random() * window.innerHeight + 1);
       const radius = Number((Math.random() * 1.8).toFixed(2));
-      stars.push({ x, y, radius });
+      const color = 'white';
+      stars.push({
+        x, y, radius, color,
+      });
     }
+    // for (let i = 0; i < 50; i += 1) {
+    //   const random = Math.trunc(Math.random() * (starsNumber + 1));
+    //   stars[random].color = 'rgb(247, 205, 9)';
+    // }
+    // for (let i = 0; i < 100; i += 1) {
+    //   const random = Math.trunc(Math.random() * (starsNumber + 1));
+    //   stars[random].color = 'rgb(69, 232, 247)';
+    // }
 
-    function drawStar(x, y, radius) {
+    function drawStar(x, y, radius, color) {
       const bgCtx = pageBackground.getContext('2d');
       bgCtx.beginPath();
       bgCtx.arc(x, y, radius, 0, Math.PI * 2, true);
-      bgCtx.fillStyle = 'white';
+      bgCtx.fillStyle = color;
       bgCtx.shadowColor = 'white';
       bgCtx.shadowBlur = 10;
       bgCtx.fill();
@@ -591,7 +612,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const bgCtx = pageBackground.getContext('2d');
       bgCtx.clearRect(0, 0, window.innerWidth, window.innerHeight);
       stars.forEach((elem) => {
-        drawStar(elem.x, elem.y, elem.radius);
+        drawStar(elem.x, elem.y, elem.radius, elem.color);
       });
     }
   }

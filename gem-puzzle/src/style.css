@@ -4,8 +4,27 @@ body, h1, h2, h3, p, ul, ol, li {
 }
 
 body {
-  font-family: Arial, Helvetica, sans-serif;
+  /* font-family: Arial, Helvetica, sans-serif;
+  text-transform: uppercase; */
+  /* font-family: 'Share Tech Mono', monospace; */
   background-color: black;
+  /* font-size: 18px;
+  font-family: 'Unica One', cursive; */
+  font-family: 'Audiowide', 'Arial', monospace;
+  font-weight: bold;
+}
+
+/* body, */
+button,
+select {
+  /* font-family: Helvetica, sans-serif; */
+  text-transform: uppercase;
+  font-weight: bold;
+  /* font-family: 'Share Tech Mono', monospace; */
+  /* font-size: 10px; */
+  /* font-family: 'Unica One', cursive; */
+  font-family: 'Audiowide', 'Arial', monospace;
+  outline-color: rgb(247, 205, 9);
 }
 
 h2 {
@@ -22,13 +41,13 @@ h2 {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 50px 5px;
+  padding: 70px 5px;
 }
 
 .game-controls {
-  padding: 50px 0 20px;
+  padding: 50px 0 40px;
   width: 100%;
-  max-width: 680px;
+  max-width: 760px;
   display: flex;
   justify-content: space-between;
   flex-wrap: wrap;
@@ -67,8 +86,8 @@ h2 {
 
 .game-controls__btn--sound {
   position: relative;
-  width: 38px;
-  height: 38px;
+  width: 43px;
+  height: 43px;
   /* background-color: red; */
   background-image: url(./assets/sound-icon-30x30.png);
   background-repeat: no-repeat;
@@ -78,12 +97,12 @@ h2 {
 .game-controls__btn--sound::after {
   content: '';
   position: absolute;
-  width: 54px;
+  width: 61px;
   /* width: 42px; */
   height: 2px;
-  background-color: black;
-  bottom: 18px;
-  right: -8px;
+  background-color: rgb(30, 30, 30);
+  bottom: 20px;
+  right: -9px;
   /* bottom: 18px;
   right: -2px; */
   transform: rotate(-45deg);
@@ -94,7 +113,7 @@ content: none;
 }
 
 .game-info {
-  padding: 10px 0 20px;
+  padding: 30px 0 30px;
   width: 400px;
   display: flex;
   justify-content: space-between;
@@ -165,6 +184,21 @@ th:nth-child(1) {
   z-index: -1;
 }
 
+@media (max-width: 999px) {
+  .game-controls {
+    width: 95%;
+    max-width: 700px;
+    padding: 20px 0 20px;
+    justify-content: center;
+    column-gap: 30px;
+  }
+
+  .game-info {
+    padding: 30px 0 30px;
+    /* width: 400px; */
+  }
+}
+
 @media (max-width: 767px) {
 
   h2 {
@@ -195,10 +229,17 @@ th:nth-child(1) {
   }
 }
 
-@media (max-width: 469px) {
+@media (max-width: 499px) {
   .game-controls {
-    /* width: 95%; */
-    max-width: 300px;
+    width: 90%;
+    max-width: 320px;
+    padding: 20px 0 0;
+    column-gap: initial;
+    justify-content: space-between;
+  }
+
+  .game-controls__btn--sound {
+    justify-self: flex-start;
   }
 
   .game-records-table {
