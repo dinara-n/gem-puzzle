@@ -94,6 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
   console.log(board);
   // const gameBoardTiles = [];
   const ctx = gameBoard.getContext('2d');
+  const offsetPerFrame = (board.tileSize + board.gapSize) / 50;
   let xShift = 0;
   let yShift = 0;
   // let xOffset = 0;
@@ -125,17 +126,19 @@ document.addEventListener('DOMContentLoaded', () => {
   // eslint-disable-next-line no-shadow
   function drawTile(ctx, elem, i) {
     // const ctx = gameBoard.getContext('2d');
-    const offsetPerFrame = (board.tileSize + board.gapSize) / 50;
     let tileNumber = elem;
     let {
       xStart, xEnd, yStart, yEnd,
     } = { ...board.tilesCoords[i] };
-
+    // console.log(`areTilesSwapping: ${board.areTilesSwapping}`);
+    // console.log(`is Board Drawn: ${isBoardDrawn}`);
+    // console.log(`elem: ${elem}`);
+    // console.log(board.array);
     if (board.areTilesSwapping) {
       ctx.clearRect(board.movingTilePrevCoords.xStart - 2, board.movingTilePrevCoords.yStart - 2, board.tileSize + 4, board.tileSize + 4);
       tileNumber = board.array[board.tileTarget];
       // console.log(board.movingTilePrevCoords);
-      // console.log(board.areTilesSwapping, tileSwapComplete);
+      // console.log(board.movingTileNewCoords);
 
       // If tile reached destination
 
@@ -157,9 +160,16 @@ document.addEventListener('DOMContentLoaded', () => {
         xShift = (xDirection === 'right') ? (xShift + offsetPerFrame) : (xDirection === 'left') ? (xShift - offsetPerFrame) : xShift;
         if (xDirection === 'right' || xDirection === 'left') {
           board.movingTilePrevCoords.xStart += xShift;
-          board.movingTilePrevCoords.xEnd += xShift;
+          // board.movingTilePrevCoords.xEnd += xShift;
+          board.movingTilePrevCoords.xEnd = board.movingTilePrevCoords.xStart + board.tileSize;
           xStart = board.movingTilePrevCoords.xStart;
-          xEnd = board.movingTilePrevCoords.xEnd;
+          // xEnd = board.movingTilePrevCoords.xEnd;
+          xEnd = xStart + board.tileSize;
+          yStart = board.movingTilePrevCoords.yStart;
+          yEnd = board.movingTilePrevCoords.yEnd;
+          // console.log(xShift);
+          // console.log(board.movingTilePrevCoords);
+          // console.log(xStart, xEnd, yStart, yEnd);
         }
       }
 
@@ -183,9 +193,13 @@ document.addEventListener('DOMContentLoaded', () => {
         yShift = (yDirection === 'down') ? (yShift + offsetPerFrame) : (yDirection === 'up') ? (yShift - offsetPerFrame) : yShift;
         if (yDirection === 'down' || yDirection === 'up') {
           board.movingTilePrevCoords.yStart += yShift;
-          board.movingTilePrevCoords.yEnd += yShift;
+          // board.movingTilePrevCoords.yEnd += yShift;
+          board.movingTilePrevCoords.yEnd = board.movingTilePrevCoords.yStart + board.tileSize;
           yStart = board.movingTilePrevCoords.yStart;
-          yEnd = board.movingTilePrevCoords.yEnd;
+          // yEnd = board.movingTilePrevCoords.yEnd;
+          yEnd = yStart + board.tileSize;
+          xStart = board.movingTilePrevCoords.xStart;
+          xEnd = board.movingTilePrevCoords.xEnd;
         }
       }
     }
@@ -215,8 +229,8 @@ document.addEventListener('DOMContentLoaded', () => {
     ctx.textBaseline = 'middle';
     ctx.fillText(tileNumber, xStart + (board.tileSize - ctx.measureText(tileNumber).width) * 0.5, yStart + board.tileSize * 0.5);
 
-    if (board.areTilesSwapping && !tileSwapComplete) {
-      console.log('animation on click');
+    if (board.areTilesSwapping && !tileSwapComplete && isBoardDrawn) {
+      // console.log('animation on click');
       // drawBoard();
       // eslint-disable-next-line prefer-arrow-callback, func-names
       window.requestAnimationFrame(function () { drawTile(ctx, board.array[board.tileToSwap], board.tileToSwap); });
@@ -225,6 +239,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (isTileDragged && isBoardDrawn) {
       isBoardDrawn = false;
     }
+    // console.log(`xShift: ${xShift}`);
   }
 
   function drawBoard() {
@@ -235,7 +250,9 @@ document.addEventListener('DOMContentLoaded', () => {
           drawTile(ctx, elem, i);
         }
       });
+      // if (!board.areTilesSwapping) {
       isBoardDrawn = true;
+      // }
     }
   }
 
@@ -414,22 +431,26 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function boardDrag(evt) {
+    console.log('boardDrag');
     evt.preventDefault();
     gameBoard.removeEventListener('mouseup', boardMouseClick);
     // gameBoard.removeEventListener('mousemove', boardDrag);
     document.body.addEventListener('mouseup', boardStopDrag);
-    // console.log('mousemove');
+    // console.log(`board.tileMovingIndex: ${board.tileMovingIndex}`);
 
     if (isTileDragged) {
+      // console.log('Is Dragged');
       const bounding = gameBoard.getBoundingClientRect();
       mouseX = evt.clientX - bounding.left;
       mouseY = evt.clientY - bounding.top;
       drawBoard();
+      // console.log(`board.tileMovingIndex: ${board.tileMovingIndex}`);
       drawTile(ctx, board.array[board.tileMovingIndex], board.tileMovingIndex);
     }
     // console.log(mouseX, mouseY);
     if (!isTileDragged) {
-      console.log('mousemove');
+      // console.log('Is Not Dragged');
+      // console.log('mousemove');
       for (let i = 0; i < board.boardLength; i += 1) {
         const elem = board.tilesCoords[i];
         // console.log(elem.xStart);
@@ -437,6 +458,7 @@ document.addEventListener('DOMContentLoaded', () => {
           mouseXOffset = mouseX - elem.xStart;
           mouseYOffset = mouseY - elem.yStart;
           isTileDragged = true;
+          console.log(`board.tileMovingIndex: ${board.tileMovingIndex}`);
           board.tileMovingIndex = i;
           // drawBoard();
           // // eslint-disable-next-line no-loop-func, prefer-arrow-callback
@@ -448,12 +470,14 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function boardStopDrag() {
+    console.log('boardStopDrag');
     gameBoard.removeEventListener('mousemove', boardDrag);
-    gameBoard.removeEventListener('mouseup', boardStopDrag);
+    document.body.removeEventListener('mouseup', boardStopDrag);
+    // gameBoard.removeEventListener('mouseup', boardMouseClick);
     const zeroCoords = board.tilesCoords[board.zeroIndex];
     if (isTileDragged && (mouseX >= zeroCoords.xStart) && (mouseX <= zeroCoords.xEnd) && (mouseY >= zeroCoords.yStart) && (mouseY <= zeroCoords.yEnd)) {
-      console.log('yes');
-      console.log(`board.tileMovingIndex: ${board.tileMovingIndex}, board.zeroIndex: ${board.zeroIndex}`);
+      // console.log('yes');
+      // console.log(`board.tileMovingIndex: ${board.tileMovingIndex}, board.zeroIndex: ${board.zeroIndex}`);
       const coords = board.tilesCoords;
       [board.array[board.tileMovingIndex], board.array[board.zeroIndex]] = [board.array[board.zeroIndex], board.array[board.tileMovingIndex]];
       board.zeroIndex = board.tileMovingIndex;
@@ -488,18 +512,21 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function boardMouseDown(evt) {
+    console.log('boardMouseDown');
     const bounding = gameBoard.getBoundingClientRect();
     mouseX = evt.clientX - bounding.left;
     mouseY = evt.clientY - bounding.top;
 
-    // gameBoard.addEventListener('mousemove', boardDrag);
+    gameBoard.addEventListener('mousemove', boardDrag);
     gameBoard.addEventListener('mouseup', boardMouseClick);
   }
 
   function boardMouseClick(evt) {
+    console.log('boardMouseClick');
     gameBoard.removeEventListener('mousemove', boardDrag);
     gameBoard.removeEventListener('mouseup', boardMouseClick);
-    console.log('click');
+    // gameBoard.removeEventListener('mouseup', boardStopDrag);
+    // console.log('click');
     // console.log(`Clicking, isTileDrag = ${isTileDragged}, board.tileMovingIndex = ${board.tileMovingIndex}`);
     const bounding = gameBoard.getBoundingClientRect();
     const x = evt.clientX - bounding.left;
