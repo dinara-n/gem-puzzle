@@ -468,7 +468,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (board.isSolved()) {
         gameBoard.removeEventListener('mousedown', boardMouseDown);
         showWinningMessage();
-        if ((board.movesNumber < +gameRecords.at(-1).moves) || gameRecords.length < 10) {
+        if ((gameRecords.at(-1) && board.movesNumber < +gameRecords.at(-1).moves) || gameRecords.length < 10) {
           updateRecords();
         }
       }
@@ -492,7 +492,7 @@ document.addEventListener('DOMContentLoaded', () => {
     mouseX = evt.clientX - bounding.left;
     mouseY = evt.clientY - bounding.top;
 
-    // gameBoard.addEventListener('mousemove', boardDrag);
+    gameBoard.addEventListener('mousemove', boardDrag);
     gameBoard.addEventListener('mouseup', boardMouseClick);
   }
 
@@ -529,7 +529,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (board.isSolved()) {
       gameBoard.removeEventListener('mousedown', boardMouseDown);
       showWinningMessage();
-      if ((board.movesNumber < +gameRecords.at(-1).moves) || gameRecords.length < 10) {
+      if ((gameRecords.at(-1) && board.movesNumber < +gameRecords.at(-1).moves) || gameRecords.length < 10) {
         updateRecords();
       }
     }
