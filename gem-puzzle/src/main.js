@@ -12,6 +12,11 @@ const audioTileMoving = new Audio('./assets/click.mp3');
 audioTileMoving.volume = 0.2;
 audioTileMoving.muted = true;
 
+const COLOR_BLACK = 'rgb(0, 0, 0)';
+const COLOR_WHITE = 'rgb(255, 255, 255)';
+// const COLOR_BLUE = 'rgb(69, 232, 247)';
+const COLOR_ORANGE = 'rgb(247, 205, 9)';
+
 document.addEventListener('DOMContentLoaded', () => {
   function addHtmlElement(tag, text = '', container = document.body, cssClass = '') {
     const element = document.createElement(tag);
@@ -20,6 +25,8 @@ document.addEventListener('DOMContentLoaded', () => {
     container.append(element);
     return element;
   }
+
+  // Generating HTML
 
   const mainContainer = addHtmlElement('main', null, document.body, 'main-container');
   const gameControls = addHtmlElement('section', null, mainContainer, 'game-controls');
@@ -50,26 +57,45 @@ document.addEventListener('DOMContentLoaded', () => {
   const gameMovesNumber = addHtmlElement('span', '0', gameMoves, 'game-info__moves-number');
   const gameBoardWrapper = addHtmlElement('section', null, mainContainer, 'gameboard-wrapper');
   const gameBoard = addHtmlElement('canvas', 'Sorry! It seems your browser does not support HTML Canvas. Please try another browser.', gameBoardWrapper, 'gameboard');
-  gameBoard.width = 300;
-  gameBoard.height = 300;
-  // if (window.matchMedia('(max-width: 767px)').matches) {
-  //   console.log('aaaaa');
-  //   gameBoard.width = 300;
-  //   gameBoard.height = 300;
-  // }
-
+  const gameCtx = gameBoard.getContext('2d');
+  gameCtx.canvas.width = 500;
+  gameCtx.canvas.height = 500;
+  if (window.matchMedia('(max-width: 519px)').matches) {
+    gameCtx.canvas.width = 300;
+    gameCtx.canvas.height = 300;
+  }
   const pageBackground = addHtmlElement('canvas', '', document.body, 'page-background');
   pageBackground.width = window.innerWidth;
   pageBackground.height = window.innerHeight;
 
-  const gameSettings = JSON.parse(localStorage.getItem('gemPuzzleByDinaraN_gameSettings')) || {};
-  if (gameSettings.sound) {
-    audioTileMoving.muted = false;
-    btnSound.classList.add('sound-on');
-  }
+  // window.matchMedia('(max-width: 519px)').addEventListener('change', () => {
+  //   console.log('max-width: 519px');
+  //   // gameBoard.width = 300;
+  //   // gameBoard.height = 300;
+  //   gameCtx.canvas.width = 300;
+  //   gameCtx.canvas.height = 300;
+  //   board.recalculateStats();
+  //   console.log(board);
+  //   drawBoard();
+  // });
 
-  const gameRecords = JSON.parse(localStorage.getItem('gemPuzzleByDinaraN_gameRecords')) || [];
-  console.log(gameRecords);
+  // window.matchMedia('(min-width: 520px)').addEventListener('change', () => {
+  //   console.log('max-width: 520px');
+  //   // gameBoard.width = 500;
+  //   // gameBoard.height = 500;
+  //   gameCtx.canvas.width = 500;
+  //   gameCtx.canvas.height = 500;
+  //   board.recalculateStats();
+  //   console.log(board);
+  //   drawBoard();
+  // });
+
+  window.addEventListener('resize', () => {
+    gameCtx.canvas.width = (window.innerWidth < 520) ? 300 : 500;
+    gameCtx.canvas.height = (window.innerWidth < 520) ? 300 : 500;
+    board.recalculateStats();
+    drawBoard();
+  });
 
   let startingTime = Math.trunc(Date.now() / 1000);
 
@@ -90,15 +116,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // showTime();
 
+  const gameSettings = JSON.parse(localStorage.getItem('gemPuzzleByDinaraN_gameSettings')) || {};
+  if (gameSettings.sound) {
+    audioTileMoving.muted = false;
+    btnSound.classList.add('sound-on');
+  }
+
+  const gameRecords = JSON.parse(localStorage.getItem('gemPuzzleByDinaraN_gameRecords')) || [];
+  console.log(gameRecords);
+
   let board = new Board(gameBoard, +sizeSelect.value, 8);
   console.log(board);
-  // const gameBoardTiles = [];
-  const ctx = gameBoard.getContext('2d');
   const offsetPerFrame = (board.tileSize + board.gapSize) / 50;
   let xShift = 0;
   let yShift = 0;
-  // let xOffset = 0;
-  // let yOffset = 0;
   let xDirection = null;
   let yDirection = null;
   let tileSwapComplete = false;
@@ -108,7 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let mouseXOffset = 0;
   let mouseYOffset = 0;
   let isBoardDrawn = true;
-  console.log(ctx);
+  console.log(gameCtx);
 
   function drawSquare(tile, xStart, xEnd, yStart, yEnd, curve) {
     tile.moveTo(xStart, yStart + curve);
@@ -120,25 +151,18 @@ document.addEventListener('DOMContentLoaded', () => {
     tile.lineTo(xStart + curve, yEnd);
     tile.quadraticCurveTo(xStart, yEnd, xStart, yEnd - curve);
     tile.lineTo(xStart, yStart + curve);
-    // tile.fillText(text, 20, 20);
   }
 
-  // eslint-disable-next-line no-shadow
   function drawTile(ctx, elem, i) {
     // const ctx = gameBoard.getContext('2d');
     let tileNumber = elem;
     let {
       xStart, xEnd, yStart, yEnd,
     } = { ...board.tilesCoords[i] };
-    // console.log(`areTilesSwapping: ${board.areTilesSwapping}`);
-    // console.log(`is Board Drawn: ${isBoardDrawn}`);
-    // console.log(`elem: ${elem}`);
-    // console.log(board.array);
+
     if (board.areTilesSwapping) {
       ctx.clearRect(board.movingTilePrevCoords.xStart - 2, board.movingTilePrevCoords.yStart - 2, board.tileSize + 4, board.tileSize + 4);
       tileNumber = board.array[board.tileTarget];
-      // console.log(board.movingTilePrevCoords);
-      // console.log(board.movingTileNewCoords);
 
       // If tile reached destination
 
@@ -167,9 +191,6 @@ document.addEventListener('DOMContentLoaded', () => {
           xEnd = xStart + board.tileSize;
           yStart = board.movingTilePrevCoords.yStart;
           yEnd = board.movingTilePrevCoords.yEnd;
-          // console.log(xShift);
-          // console.log(board.movingTilePrevCoords);
-          // console.log(xStart, xEnd, yStart, yEnd);
         }
       }
 
@@ -210,9 +231,6 @@ document.addEventListener('DOMContentLoaded', () => {
       xEnd = xStart + board.tileSize;
       yStart = mouseY - mouseYOffset;
       yEnd = yStart + board.tileSize;
-      // console.log('animation on drag');
-      // console.log(xStart, xEnd, yStart, yEnd);
-      // drawBoard();
     }
 
     const tile = new Path2D();
@@ -221,10 +239,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // ctx.fillStyle = 'orange';
     // ctx.fill(tile);
     ctx.lineWidth = '2';
-    ctx.strokeStyle = 'rgb(247, 205, 9)';
+    ctx.strokeStyle = COLOR_ORANGE;
     ctx.stroke(tile);
-    ctx.fillStyle = 'rgb(247, 205, 9)';
-    // ctx.fillStyle = 'black';
+    ctx.fillStyle = COLOR_ORANGE;
+    // ctx.shadowColor = COLOR_ORANGE;
+    // ctx.shadowBlur = 1;
+    // ctx.fillStyle = COLOR_BLACK;
     // ctx.font = `${board.tileSize * 0.5}px Arial`;
     // ctx.font = `${board.tileSize * 0.5}px "Share Tech Mono"`;
     // ctx.font = `${board.tileSize * 0.5}px "Unica One"`;
@@ -233,8 +253,6 @@ document.addEventListener('DOMContentLoaded', () => {
     ctx.fillText(tileNumber, xStart + (board.tileSize - ctx.measureText(tileNumber).width) * 0.5, yStart + board.tileSize * 0.5);
 
     if (board.areTilesSwapping && !tileSwapComplete && isBoardDrawn) {
-      // console.log('animation on click');
-      // drawBoard();
       // eslint-disable-next-line prefer-arrow-callback, func-names
       window.requestAnimationFrame(function () { drawTile(ctx, board.array[board.tileToSwap], board.tileToSwap); });
     }
@@ -242,15 +260,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (isTileDragged && isBoardDrawn) {
       isBoardDrawn = false;
     }
-    // console.log(`xShift: ${xShift}`);
   }
 
   function drawBoard() {
     if (gameBoard.getContext) {
-      ctx.clearRect(0, 0, gameBoard.width, gameBoard.height);
+      gameCtx.clearRect(0, 0, gameBoard.width, gameBoard.height);
       board.array.forEach((elem, i) => {
         if (elem && (i !== board.tileMovingIndex)) {
-          drawTile(ctx, elem, i);
+          drawTile(gameCtx, elem, i);
         }
       });
       // if (!board.areTilesSwapping) {
@@ -259,37 +276,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // If font is not loaded in time, and board is drawn with the default one
+  // If the font is not downloaded in time, and the board is drawn with the default font, redraw it later
 
   setTimeout(() => {
     isBoardDrawn = false;
     drawBoard();
   }, 500);
   drawBoard();
-
-  // window.matchMedia('(max-width: 767px)').addEventListener('change', () => {
-  //   console.log('small');
-  // gameBoard.remove();
-  // gameBoard = addHtmlElement('canvas', 'Sorry! It seems your browser does not support HTML Canvas. Please try another browser.', gameBoardWrapper, 'gameboard');
-  // gameBoardWrapper.append(gameBoard);
-  // gameBoard.width = 300;
-  // gameBoard.height = 300;
-  // board.recalculateStats();
-  // console.log(board);
-  // drawBoard();
-  // });
-
-  // window.matchMedia('(min-width: 768px)').addEventListener('change', () => {
-  //   console.log('big');
-  // gameBoard.remove();
-  // gameBoard = addHtmlElement('canvas', 'Sorry! It seems your browser does not support HTML Canvas. Please try another browser.', gameBoardWrapper, 'gameboard');
-  // gameBoardWrapper.append(gameBoard);
-  // gameBoard.width = 500;
-  // gameBoard.height = 500;
-  // board.recalculateStats();
-  // console.log(board);
-  // drawBoard();
-  // });
 
   // Listening to Board Size Selection
 
@@ -305,8 +298,8 @@ document.addEventListener('DOMContentLoaded', () => {
     startingTime = Math.trunc(Date.now() / 1000);
     setInterval(iterateTime, 100);
     // iterateTime();
-    gameTime.style.color = 'white';
-    gameMoves.style.color = 'white';
+    gameTime.style.color = COLOR_WHITE;
+    gameMoves.style.color = COLOR_WHITE;
     gameBoard.addEventListener('mousedown', boardMouseDown);
   });
 
@@ -322,8 +315,8 @@ document.addEventListener('DOMContentLoaded', () => {
     startingTime = Math.trunc(Date.now() / 1000);
     setInterval(iterateTime, 100);
     // iterateTime();
-    gameTime.style.color = 'white';
-    gameMoves.style.color = 'white';
+    gameTime.style.color = COLOR_WHITE;
+    gameMoves.style.color = COLOR_WHITE;
     gameBoard.addEventListener('mousedown', boardMouseDown);
   });
 
@@ -356,8 +349,8 @@ document.addEventListener('DOMContentLoaded', () => {
     board.movesNumber = +gameStats.moves;
     gameMovesNumber.textContent = board.movesNumber;
     drawBoard();
-    gameTime.style.color = 'white';
-    gameMoves.style.color = 'white';
+    gameTime.style.color = COLOR_WHITE;
+    gameMoves.style.color = COLOR_WHITE;
     gameBoard.addEventListener('mousedown', boardMouseDown);
   });
 
@@ -405,9 +398,9 @@ document.addEventListener('DOMContentLoaded', () => {
       gameRecordsPopUp.remove();
     });
     window.addEventListener('keydown', (keyDown) => {
-      if (keyDown.key === 'Escape') {
-        gameRecordsPopUp.remove();
-      }
+      // if (keyDown.key === 'Escape') {
+      gameRecordsPopUp.remove();
+      // }
     });
   });
 
@@ -415,17 +408,17 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('Solved!');
     clearInterval(iterateTime);
     // stopIteratingTime();
-    gameTime.style.color = 'black';
-    gameMoves.style.color = 'black';
+    gameTime.style.color = COLOR_BLACK;
+    gameMoves.style.color = COLOR_BLACK;
     const gameSolvedPopUp = addHtmlElement('div', null, document.body, 'game-solved-popup');
     const gameSolvedPopUpMessage = addHtmlElement('h2', `Hooray! You solved the puzzle in ${gameTimer.textContent} and ${board.movesNumber} moves!`, gameSolvedPopUp, 'game-solved-popup__message');
     gameSolvedPopUp.addEventListener('click', () => {
       gameSolvedPopUp.remove();
     });
     window.addEventListener('keydown', (keyDown) => {
-      if (keyDown.key === 'Escape') {
-        gameSolvedPopUp.remove();
-      }
+      // if (keyDown.key === 'Escape') {
+      gameSolvedPopUp.remove();
+      // }
     });
   }
 
@@ -454,7 +447,7 @@ document.addEventListener('DOMContentLoaded', () => {
       mouseY = evt.clientY - bounding.top;
       drawBoard();
       // console.log(`board.tileMovingIndex: ${board.tileMovingIndex}`);
-      drawTile(ctx, board.array[board.tileMovingIndex], board.tileMovingIndex);
+      drawTile(gameCtx, board.array[board.tileMovingIndex], board.tileMovingIndex);
     }
     // console.log(mouseX, mouseY);
     if (!isTileDragged) {
@@ -467,7 +460,7 @@ document.addEventListener('DOMContentLoaded', () => {
           mouseXOffset = mouseX - elem.xStart;
           mouseYOffset = mouseY - elem.yStart;
           isTileDragged = true;
-          console.log(`board.tileMovingIndex: ${board.tileMovingIndex}`);
+          // console.log(`board.tileMovingIndex: ${board.tileMovingIndex}`);
           board.tileMovingIndex = i;
           // drawBoard();
           // // eslint-disable-next-line no-loop-func, prefer-arrow-callback
@@ -555,7 +548,7 @@ document.addEventListener('DOMContentLoaded', () => {
           // console.log(board.tileToSwap);
           tileSwapComplete = false;
           // eslint-disable-next-line prefer-arrow-callback, func-names, no-loop-func
-          window.requestAnimationFrame(function () { drawTile(ctx, board.array[board.tileToSwap], board.tileToSwap); });
+          window.requestAnimationFrame(function () { drawTile(gameCtx, board.array[board.tileToSwap], board.tileToSwap); });
           board.zeroIndex = i;
           gameMovesNumber.textContent = board.movesNumber;
         }
@@ -584,18 +577,18 @@ document.addEventListener('DOMContentLoaded', () => {
       const x = Math.trunc(Math.random() * window.innerWidth + 1);
       const y = Math.trunc(Math.random() * window.innerHeight + 1);
       const radius = Number((Math.random() * 1.8).toFixed(2));
-      const color = 'white';
+      const color = COLOR_WHITE;
       stars.push({
         x, y, radius, color,
       });
     }
     // for (let i = 0; i < 50; i += 1) {
     //   const random = Math.trunc(Math.random() * (starsNumber + 1));
-    //   stars[random].color = 'rgb(247, 205, 9)';
+    //   stars[random].color = COLOR_ORANGE;
     // }
     // for (let i = 0; i < 100; i += 1) {
     //   const random = Math.trunc(Math.random() * (starsNumber + 1));
-    //   stars[random].color = 'rgb(69, 232, 247)';
+    //   stars[random].color = COLOR_BLUE;
     // }
 
     function drawStar(x, y, radius, color) {
@@ -603,7 +596,7 @@ document.addEventListener('DOMContentLoaded', () => {
       bgCtx.beginPath();
       bgCtx.arc(x, y, radius, 0, Math.PI * 2, true);
       bgCtx.fillStyle = color;
-      bgCtx.shadowColor = 'white';
+      bgCtx.shadowColor = COLOR_WHITE;
       bgCtx.shadowBlur = 10;
       bgCtx.fill();
     }

@@ -103,7 +103,7 @@ class Board {
       const isSameRow = Math.trunc(target / this.rowLength) === Math.trunc(elem / this.rowLength);
       const isSameColumn = target % this.rowLength === elem % this.rowLength;
       if ((isSameRow || isSameColumn) && this.array[elem] !== undefined && this.array[elem] === 0) {
-        console.log('!!!!!!!');
+        // console.log('!!!!!!!');
         this.areTilesSwapping = true;
         this.tileToSwap = target;
         this.tileTarget = elem;
