@@ -1,3 +1,4 @@
+/* eslint-disable object-curly-newline */
 /* eslint-disable no-nested-ternary */
 /* eslint-disable no-use-before-define */
 /* eslint-disable no-unused-vars */
@@ -18,45 +19,67 @@ const COLOR_WHITE = 'rgb(255, 255, 255)';
 const COLOR_ORANGE = 'rgb(247, 205, 9)';
 
 document.addEventListener('DOMContentLoaded', () => {
-  function addHtmlElement(tag, text = '', container = document.body, cssClass = '') {
-    const element = document.createElement(tag);
-    element.textContent = text;
-    element.classList.add(cssClass);
-    container.append(element);
+  // Generating HTML
+
+  // function addHtmlElement(tag, text = '', container = document.body, cssClass = '') {
+  //   const element = document.createElement(tag);
+  //   element.textContent = text;
+  //   element.classList.add(cssClass);
+  //   container.append(element);
+  //   return element;
+  // }
+
+  function addHtmlElement(args) {
+    const element = document.createElement(args.tag);
+    Object.keys(args).forEach((key) => {
+      switch (key) {
+        case 'tag':
+        case 'parent':
+          break;
+        case 'classList':
+          args[key].forEach((elem) => element.classList.add(elem));
+          break;
+        default:
+          element[key] = args[key];
+      }
+      // if (key === 'classList') {
+      //   args.classList.forEach((elem) => element.classList.add(elem));
+      // } else {
+      //   element[key] = args[key];
+      // }
+    });
+    // if (args.ariaLabel) element.ariaLabel = args.ariaLabel;
+    // if (args.classList) {
+    //   args.classList.forEach((elem) => element.classList.add(elem));
+    // }
+    // if (args.height) element.height = args.height;
+    // if (args.name) element.name = args.name;
+    // if (args.textContent) element.textContent = args.textContent;
+    // if (args.value) element.value = args.value;
+    // if (args.width) element.width = args.width;
+    args.parent.append(element);
     return element;
   }
 
-  // Generating HTML
-
-  const mainContainer = addHtmlElement('main', null, document.body, 'main-container');
-  const gameControls = addHtmlElement('section', null, mainContainer, 'game-controls');
-  // const sizeLabel = addHtmlElement('label', 'Size:', gameControls, 'game-controls__size-label');
-  // sizeLabel.htmlFor = 'board-size';
-  const sizeSelect = addHtmlElement('select', null, gameControls, 'game-controls__size');
-  sizeSelect.name = 'board-size';
+  const mainContainer = addHtmlElement({ tag: 'main', parent: document.body, classList: ['main-container'] });
+  const gameControls = addHtmlElement({ tag: 'section', parent: mainContainer, classList: ['game-controls'] });
+  const sizeSelect = addHtmlElement({ tag: 'select', parent: gameControls, classList: ['game-controls__size'], name: 'board-size' });
   for (let size = 3; size <= 8; size += 1) {
-    const sizeSelectOption = addHtmlElement('option', `${size} x ${size}`, sizeSelect, 'game-controls__size-select');
-    sizeSelectOption.value = size;
+    const sizeSelectOption = addHtmlElement({ tag: 'option', parent: sizeSelect, classList: ['game-controls__size-select'], textContent: `${size} x ${size}`, value: size });
   }
   sizeSelect.value = 4;
-  const btnNew = addHtmlElement('button', 'New Game', gameControls, 'game-controls__btn');
-  btnNew.classList.add('game-controls__btn--new');
-  const btnSave = addHtmlElement('button', 'Save', gameControls, 'game-controls__btn');
-  btnSave.classList.add('game-controls__btn--save');
-  const btnSaved = addHtmlElement('button', 'Saved Game', gameControls, 'game-controls__btn');
-  btnSaved.classList.add('game-controls__btn--saved');
-  const btnRecords = addHtmlElement('button', 'Records', gameControls, 'game-controls__btn');
-  btnRecords.classList.add('game-controls__btn--records');
-  const btnSound = addHtmlElement('button', '', gameControls, 'game-controls__btn');
-  btnSound.classList.add('game-controls__btn--sound');
-  btnSound.ariaLabel = 'Sound';
-  const gameInfo = addHtmlElement('section', null, mainContainer, 'game-info');
-  const gameTime = addHtmlElement('p', '', gameInfo, 'game-info__time');
-  const gameTimer = addHtmlElement('span', '0:0', gameTime, 'game-info__timer');
-  const gameMoves = addHtmlElement('p', 'Moves: ', gameInfo, 'game-info__moves');
-  const gameMovesNumber = addHtmlElement('span', '0', gameMoves, 'game-info__moves-number');
-  const gameBoardWrapper = addHtmlElement('section', null, mainContainer, 'gameboard-wrapper');
-  const gameBoard = addHtmlElement('canvas', 'Sorry! It seems your browser does not support HTML Canvas. Please try another browser.', gameBoardWrapper, 'gameboard');
+  const btnNew = addHtmlElement({ tag: 'button', parent: gameControls, classList: ['game-controls__btn', 'game-controls__btn--new'], textContent: 'New Game' });
+  const btnSave = addHtmlElement({ tag: 'button', parent: gameControls, classList: ['game-controls__btn', 'game-controls__btn--save'], textContent: 'Save' });
+  const btnSaved = addHtmlElement({ tag: 'button', parent: gameControls, classList: ['game-controls__btn', 'game-controls__btn--saved'], textContent: 'Saved Game' });
+  const btnRecords = addHtmlElement({ tag: 'button', parent: gameControls, classList: ['game-controls__btn', 'game-controls__btn--records'], textContent: 'Records' });
+  const btnSound = addHtmlElement({ tag: 'button', parent: gameControls, ariaLabel: 'Turn sound on or off', classList: ['game-controls__btn', 'game-controls__btn--sound'] });
+  const gameInfo = addHtmlElement({ tag: 'section', parent: mainContainer, classList: ['game-info'] });
+  const gameTime = addHtmlElement({ tag: 'p', parent: gameInfo, classList: ['game-info__time'] });
+  const gameTimer = addHtmlElement({ tag: 'span', parent: gameTime, classList: ['game-info__timer'], textContent: '0:0' });
+  const gameMoves = addHtmlElement({ tag: 'p', parent: gameInfo, classList: ['game-info__moves'], textContent: 'Moves: ' });
+  const gameMovesNumber = addHtmlElement({ tag: 'span', parent: gameMoves, classList: ['game-info__moves-number'], textContent: '0' });
+  const gameBoardWrapper = addHtmlElement({ tag: 'section', parent: mainContainer, classList: ['gameboard-wrapper'] });
+  const gameBoard = addHtmlElement({ tag: 'canvas', parent: gameBoardWrapper, classList: ['gameboard'], textContent: 'Sorry! It seems your browser does not support HTML Canvas. Please try another browser.' });
   const gameCtx = gameBoard.getContext('2d');
   gameCtx.canvas.width = 500;
   gameCtx.canvas.height = 500;
@@ -64,9 +87,45 @@ document.addEventListener('DOMContentLoaded', () => {
     gameCtx.canvas.width = 300;
     gameCtx.canvas.height = 300;
   }
-  const pageBackground = addHtmlElement('canvas', '', document.body, 'page-background');
-  pageBackground.width = window.innerWidth;
-  pageBackground.height = window.innerHeight;
+  // if (window.innerWidth < 520 || window.innerHeight < 520) { // need it
+  //   gameCtx.canvas.width = 300;
+  //   gameCtx.canvas.height = 300;
+  // } else {
+  //   gameCtx.canvas.width = 500;
+  //   gameCtx.canvas.height = 500;
+  // }
+  const pageBackground = addHtmlElement({ tag: 'canvas', parent: document.body, classList: ['page-background'], height: window.innerHeight, width: window.innerWidth });
+
+  // const mainContainer = addHtmlElement('main', document.body, 'main-container');
+  // const gameControls = addHtmlElement('section', null, mainContainer, 'game-controls');
+  // const sizeSelect = addHtmlElement('select', null, gameControls, 'game-controls__size');
+  // sizeSelect.name = 'board-size';
+  // for (let size = 3; size <= 8; size += 1) {
+  //   const sizeSelectOption = addHtmlElement('option', `${size} x ${size}`, sizeSelect, 'game-controls__size-select');
+  //   sizeSelectOption.value = size;
+  // }
+  // sizeSelect.value = 4;
+  // const btnNew = addHtmlElement('button', 'New Game', gameControls, 'game-controls__btn');
+  // btnNew.classList.add('game-controls__btn--new');
+  // const btnSave = addHtmlElement('button', 'Save', gameControls, 'game-controls__btn');
+  // btnSave.classList.add('game-controls__btn--save');
+  // const btnSaved = addHtmlElement('button', 'Saved Game', gameControls, 'game-controls__btn');
+  // btnSaved.classList.add('game-controls__btn--saved');
+  // const btnRecords = addHtmlElement('button', 'Records', gameControls, 'game-controls__btn');
+  // btnRecords.classList.add('game-controls__btn--records');
+  // const btnSound = addHtmlElement('button', '', gameControls, 'game-controls__btn');
+  // btnSound.classList.add('game-controls__btn--sound');
+  // btnSound.ariaLabel = 'Turn sound on or off';
+  // const gameInfo = addHtmlElement('section', null, mainContainer, 'game-info');
+  // const gameTime = addHtmlElement('p', '', gameInfo, 'game-info__time');
+  // const gameTimer = addHtmlElement('span', '0:0', gameTime, 'game-info__timer');
+  // const gameMoves = addHtmlElement('p', 'Moves: ', gameInfo, 'game-info__moves');
+  // const gameMovesNumber = addHtmlElement('span', '0', gameMoves, 'game-info__moves-number');
+  // const gameBoardWrapper = addHtmlElement('section', null, mainContainer, 'gameboard-wrapper');
+  // const gameBoard = addHtmlElement('canvas', 'Sorry! It seems your browser does not support HTML Canvas. Please try another browser.', gameBoardWrapper, 'gameboard');
+  // const pageBackground = addHtmlElement('canvas', '', document.body, 'page-background');
+  // pageBackground.width = window.innerWidth;
+  // pageBackground.height = window.innerHeight;
 
   // window.matchMedia('(max-width: 519px)').addEventListener('change', () => {
   //   console.log('max-width: 519px');
@@ -93,6 +152,13 @@ document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('resize', () => {
     gameCtx.canvas.width = (window.innerWidth < 520) ? 300 : 500;
     gameCtx.canvas.height = (window.innerWidth < 520) ? 300 : 500;
+    // if (window.innerWidth < 520 || window.innerHeight < 520) { // need it
+    //   gameCtx.canvas.width = 300;
+    //   gameCtx.canvas.height = 300;
+    // } else {
+    //   gameCtx.canvas.width = 500;
+    //   gameCtx.canvas.height = 500;
+    // }
     board.recalculateStats();
     drawBoard();
   });
@@ -123,7 +189,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   const gameRecords = JSON.parse(localStorage.getItem('gemPuzzleByDinaraN_gameRecords')) || [];
-  console.log(gameRecords);
+  // console.log(gameRecords);
 
   let board = new Board(gameBoard, +sizeSelect.value, 8);
   console.log(board);
@@ -300,6 +366,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // iterateTime();
     gameTime.style.color = COLOR_WHITE;
     gameMoves.style.color = COLOR_WHITE;
+    btnSave.disabled = false;
     gameBoard.addEventListener('mousedown', boardMouseDown);
   });
 
@@ -317,6 +384,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // iterateTime();
     gameTime.style.color = COLOR_WHITE;
     gameMoves.style.color = COLOR_WHITE;
+    btnSave.disabled = false;
     gameBoard.addEventListener('mousedown', boardMouseDown);
   });
 
@@ -351,6 +419,7 @@ document.addEventListener('DOMContentLoaded', () => {
     drawBoard();
     gameTime.style.color = COLOR_WHITE;
     gameMoves.style.color = COLOR_WHITE;
+    btnSave.disabled = false;
     gameBoard.addEventListener('mousedown', boardMouseDown);
   });
 
@@ -373,20 +442,20 @@ document.addEventListener('DOMContentLoaded', () => {
   btnRecords.addEventListener('click', () => {
     clearInterval(iterateTime);
     // stopIteratingTime();
-    const gameRecordsPopUp = addHtmlElement('div', null, document.body, 'game-records-popup');
+    const gameRecordsPopUp = addHtmlElement({ tag: 'div', parent: document.body, classList: ['game-records-popup'] });
     if (gameRecords.length === 0) {
-      const gameRecordsMessage = addHtmlElement('h2', 'You have not won any games yet!', gameRecordsPopUp, 'game-records-message');
+      const gameRecordsMessage = addHtmlElement({ tag: 'h2', parent: gameRecordsPopUp, classList: ['game-records-message'], textContent: 'You have not won any games yet!' });
     } else {
-      const gameRecordsTable = addHtmlElement('table', null, gameRecordsPopUp, 'game-records-table');
-      const gameRecordsTableHeader = addHtmlElement('tr', null, gameRecordsTable, 'game-records-table__header');
-      const gameRecordsTableHeaderNo = addHtmlElement('th', 'Place', gameRecordsTableHeader, 'game-records-table__header-cell');
-      const gameRecordsTableHeaderTime = addHtmlElement('th', 'Time', gameRecordsTableHeader, 'game-records-table__header-cell');
-      const gameRecordsTableHeaderMoves = addHtmlElement('th', 'Moves', gameRecordsTableHeader, 'game-records-table__header-cell');
+      const gameRecordsTable = addHtmlElement({ tag: 'table', parent: gameRecordsPopUp, classList: ['game-records-table'] });
+      const gameRecordsTableHeader = addHtmlElement({ tag: 'tr', parent: gameRecordsTable, classList: ['game-records-table__header'] });
+      const gameRecordsTableHeaderNo = addHtmlElement({ tag: 'th', parent: gameRecordsTableHeader, classList: ['game-records-table__header-cell'], textContent: 'Place' });
+      const gameRecordsTableHeaderTime = addHtmlElement({ tag: 'th', parent: gameRecordsTableHeader, classList: ['game-records-table__header-cell'], textContent: 'Time' });
+      const gameRecordsTableHeaderMoves = addHtmlElement({ tag: 'th', parent: gameRecordsTableHeader, classList: ['game-records-table__header-cell'], textContent: 'Moves' });
       gameRecords.forEach((elem, i) => {
-        const gameRecordsTableRow = addHtmlElement('tr', null, gameRecordsTable, 'game-records-table__row');
-        const gameRecordsTableRowNo = addHtmlElement('td', i + 1, gameRecordsTableRow, 'game-records-table__row-cell');
-        const gameRecordsTableRowTime = addHtmlElement('td', elem.time, gameRecordsTableRow, 'game-records-table__row-cell');
-        const gameRecordsTableRowMoves = addHtmlElement('td', elem.moves, gameRecordsTableRow, 'game-records-table__row-cell');
+        const gameRecordsTableRow = addHtmlElement({ tag: 'tr', parent: gameRecordsTable, classList: ['game-records-table__row'] });
+        const gameRecordsTableRowNo = addHtmlElement({ tag: 'td', parent: gameRecordsTableRow, classList: ['game-records-table__row-cell'], textContent: i + 1 });
+        const gameRecordsTableRowTime = addHtmlElement({ tag: 'td', parent: gameRecordsTableRow, classList: ['game-records-table__row-cell'], textContent: elem.time });
+        const gameRecordsTableRowMoves = addHtmlElement({ tag: 'td', parent: gameRecordsTableRow, classList: ['game-records-table__row-cell'], textContent: elem.moves });
       });
     }
 
@@ -405,13 +474,14 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   function showWinningMessage() {
-    console.log('Solved!');
+    // console.log('Solved!');
     clearInterval(iterateTime);
     // stopIteratingTime();
     gameTime.style.color = COLOR_BLACK;
     gameMoves.style.color = COLOR_BLACK;
-    const gameSolvedPopUp = addHtmlElement('div', null, document.body, 'game-solved-popup');
-    const gameSolvedPopUpMessage = addHtmlElement('h2', `Hooray! You solved the puzzle in ${gameTimer.textContent} and ${board.movesNumber} moves!`, gameSolvedPopUp, 'game-solved-popup__message');
+    btnSave.disabled = true;
+    const gameSolvedPopUp = addHtmlElement({ tag: 'div', parent: document.body, classList: ['game-solved-popup'] });
+    const gameSolvedPopUpMessage = addHtmlElement({ tag: 'h2', parent: gameSolvedPopUp, classList: ['game-solved-popup__message'], textContent: `Hooray! You solved the puzzle in ${gameTimer.textContent} and ${board.movesNumber} moves!` });
     gameSolvedPopUp.addEventListener('click', () => {
       gameSolvedPopUp.remove();
     });
@@ -428,12 +498,12 @@ document.addEventListener('DOMContentLoaded', () => {
     gameRecords.push({ time, moves });
     gameRecords.sort((a, b) => a.moves - b.moves);
     gameRecords.length = (gameRecords.length > 10) ? 10 : gameRecords.length;
-    console.log(gameRecords);
+    // console.log(gameRecords);
     localStorage.setItem('gemPuzzleByDinaraN_gameRecords', JSON.stringify(gameRecords));
   }
 
   function boardDrag(evt) {
-    console.log('boardDrag');
+    console.log('mouse move');
     evt.preventDefault();
     gameBoard.removeEventListener('mouseup', boardMouseClick);
     // gameBoard.removeEventListener('mousemove', boardDrag);
@@ -472,7 +542,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function boardStopDrag() {
-    console.log('boardStopDrag');
+    console.log('stop mouse move');
     gameBoard.removeEventListener('mousemove', boardDrag);
     document.body.removeEventListener('mouseup', boardStopDrag);
     // gameBoard.removeEventListener('mouseup', boardMouseClick);
@@ -500,7 +570,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }
     }
-    console.log(board.array);
+    // console.log(board.array);
     // isBoardDrawn = false;
     // drawBoard();
     isTileDragged = false;
@@ -515,7 +585,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function boardMouseDown(evt) {
-    console.log('boardMouseDown');
+    console.log('mouse down');
     const bounding = gameBoard.getBoundingClientRect();
     mouseX = evt.clientX - bounding.left;
     mouseY = evt.clientY - bounding.top;
@@ -525,7 +595,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function boardMouseClick(evt) {
-    console.log('boardMouseClick');
+    console.log('mouse click');
     gameBoard.removeEventListener('mousemove', boardDrag);
     gameBoard.removeEventListener('mouseup', boardMouseClick);
     // gameBoard.removeEventListener('mouseup', boardStopDrag);

@@ -109,7 +109,7 @@ class Board {
         this.tileTarget = elem;
         this.movingTilePrevCoords = { ...this.tilesCoords[target] };
         this.movingTileNewCoords = { ...this.tilesCoords[elem] };
-        console.log(this.movingTilePrevCoords, this.movingTileNewCoords);
+        // console.log(this.movingTilePrevCoords, this.movingTileNewCoords);
         [this.array[target], this.array[elem]] = [this.array[elem], this.array[target]];
         this.movesNumber += 1;
       }
