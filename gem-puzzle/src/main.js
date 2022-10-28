@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 /* eslint-disable object-curly-newline */
 /* eslint-disable no-nested-ternary */
 /* eslint-disable no-use-before-define */
@@ -16,18 +17,12 @@ audioTileMoving.muted = true;
 const COLOR_BLACK = 'rgb(0, 0, 0)';
 const COLOR_WHITE = 'rgb(255, 255, 255)';
 // const COLOR_BLUE = 'rgb(69, 232, 247)';
-const COLOR_ORANGE = 'rgb(247, 205, 9)';
+const COLOR_YELLOW = 'rgb(247, 205, 9)';
+// const COLOR_TRANSPARENT_YELLOW = 'rgba(247, 205, 9, 0.1)';
+const COLOR_TRANSPARENT_BLUE = 'rgba(69, 232, 247, 0.1)';
 
 document.addEventListener('DOMContentLoaded', () => {
   // Generating HTML
-
-  // function addHtmlElement(tag, text = '', container = document.body, cssClass = '') {
-  //   const element = document.createElement(tag);
-  //   element.textContent = text;
-  //   element.classList.add(cssClass);
-  //   container.append(element);
-  //   return element;
-  // }
 
   function addHtmlElement(args) {
     const element = document.createElement(args.tag);
@@ -48,15 +43,6 @@ document.addEventListener('DOMContentLoaded', () => {
       //   element[key] = args[key];
       // }
     });
-    // if (args.ariaLabel) element.ariaLabel = args.ariaLabel;
-    // if (args.classList) {
-    //   args.classList.forEach((elem) => element.classList.add(elem));
-    // }
-    // if (args.height) element.height = args.height;
-    // if (args.name) element.name = args.name;
-    // if (args.textContent) element.textContent = args.textContent;
-    // if (args.value) element.value = args.value;
-    // if (args.width) element.width = args.width;
     args.parent.append(element);
     return element;
   }
@@ -95,59 +81,6 @@ document.addEventListener('DOMContentLoaded', () => {
   //   gameCtx.canvas.height = 500;
   // }
   const pageBackground = addHtmlElement({ tag: 'canvas', parent: document.body, classList: ['page-background'], height: window.innerHeight, width: window.innerWidth });
-
-  // const mainContainer = addHtmlElement('main', document.body, 'main-container');
-  // const gameControls = addHtmlElement('section', null, mainContainer, 'game-controls');
-  // const sizeSelect = addHtmlElement('select', null, gameControls, 'game-controls__size');
-  // sizeSelect.name = 'board-size';
-  // for (let size = 3; size <= 8; size += 1) {
-  //   const sizeSelectOption = addHtmlElement('option', `${size} x ${size}`, sizeSelect, 'game-controls__size-select');
-  //   sizeSelectOption.value = size;
-  // }
-  // sizeSelect.value = 4;
-  // const btnNew = addHtmlElement('button', 'New Game', gameControls, 'game-controls__btn');
-  // btnNew.classList.add('game-controls__btn--new');
-  // const btnSave = addHtmlElement('button', 'Save', gameControls, 'game-controls__btn');
-  // btnSave.classList.add('game-controls__btn--save');
-  // const btnSaved = addHtmlElement('button', 'Saved Game', gameControls, 'game-controls__btn');
-  // btnSaved.classList.add('game-controls__btn--saved');
-  // const btnRecords = addHtmlElement('button', 'Records', gameControls, 'game-controls__btn');
-  // btnRecords.classList.add('game-controls__btn--records');
-  // const btnSound = addHtmlElement('button', '', gameControls, 'game-controls__btn');
-  // btnSound.classList.add('game-controls__btn--sound');
-  // btnSound.ariaLabel = 'Turn sound on or off';
-  // const gameInfo = addHtmlElement('section', null, mainContainer, 'game-info');
-  // const gameTime = addHtmlElement('p', '', gameInfo, 'game-info__time');
-  // const gameTimer = addHtmlElement('span', '0:0', gameTime, 'game-info__timer');
-  // const gameMoves = addHtmlElement('p', 'Moves: ', gameInfo, 'game-info__moves');
-  // const gameMovesNumber = addHtmlElement('span', '0', gameMoves, 'game-info__moves-number');
-  // const gameBoardWrapper = addHtmlElement('section', null, mainContainer, 'gameboard-wrapper');
-  // const gameBoard = addHtmlElement('canvas', 'Sorry! It seems your browser does not support HTML Canvas. Please try another browser.', gameBoardWrapper, 'gameboard');
-  // const pageBackground = addHtmlElement('canvas', '', document.body, 'page-background');
-  // pageBackground.width = window.innerWidth;
-  // pageBackground.height = window.innerHeight;
-
-  // window.matchMedia('(max-width: 519px)').addEventListener('change', () => {
-  //   console.log('max-width: 519px');
-  //   // gameBoard.width = 300;
-  //   // gameBoard.height = 300;
-  //   gameCtx.canvas.width = 300;
-  //   gameCtx.canvas.height = 300;
-  //   board.recalculateStats();
-  //   console.log(board);
-  //   drawBoard();
-  // });
-
-  // window.matchMedia('(min-width: 520px)').addEventListener('change', () => {
-  //   console.log('max-width: 520px');
-  //   // gameBoard.width = 500;
-  //   // gameBoard.height = 500;
-  //   gameCtx.canvas.width = 500;
-  //   gameCtx.canvas.height = 500;
-  //   board.recalculateStats();
-  //   console.log(board);
-  //   drawBoard();
-  // });
 
   window.addEventListener('resize', () => {
     gameCtx.canvas.width = (window.innerWidth < 520) ? 300 : 500;
@@ -188,8 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
     btnSound.classList.add('sound-on');
   }
 
-  const gameRecords = JSON.parse(localStorage.getItem('gemPuzzleByDinaraN_gameRecords')) || [];
-  // console.log(gameRecords);
+  // The Gameboard
 
   let board = new Board(gameBoard, +sizeSelect.value, 8);
   console.log(board);
@@ -207,7 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let isBoardDrawn = true;
   console.log(gameCtx);
 
-  function drawSquare(tile, xStart, xEnd, yStart, yEnd, curve) {
+  function makeSquare(tile, xStart, xEnd, yStart, yEnd, curve) {
     tile.moveTo(xStart, yStart + curve);
     tile.quadraticCurveTo(xStart, yStart, xStart + curve, yStart);
     tile.lineTo(xEnd - curve, yStart);
@@ -220,7 +152,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function drawTile(ctx, elem, i) {
-    // const ctx = gameBoard.getContext('2d');
     let tileNumber = elem;
     let {
       xStart, xEnd, yStart, yEnd,
@@ -228,7 +159,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (board.areTilesSwapping) {
       ctx.clearRect(board.movingTilePrevCoords.xStart - 2, board.movingTilePrevCoords.yStart - 2, board.tileSize + 4, board.tileSize + 4);
-      tileNumber = board.array[board.tileTarget];
+      tileNumber = board.array[board.tileTargetIndex];
 
       // If tile reached destination
 
@@ -242,8 +173,8 @@ document.addEventListener('DOMContentLoaded', () => {
         board.movingTileNewCoords = null;
         tileSwapComplete = true;
         board.areTilesSwapping = false;
-        board.tileToSwap = null;
-        board.tileTarget = null;
+        board.tileToSwapIndex = null;
+        board.tileTargetIndex = null;
       } else {
         // If tile is still moving
 
@@ -272,8 +203,8 @@ document.addEventListener('DOMContentLoaded', () => {
         board.movingTileNewCoords = null;
         tileSwapComplete = true;
         board.areTilesSwapping = false;
-        board.tileToSwap = null;
-        board.tileTarget = null;
+        board.tileToSwapIndex = null;
+        board.tileTargetIndex = null;
       } else {
         // If tile is still moving
 
@@ -301,26 +232,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const tile = new Path2D();
     ctx.beginPath();
-    drawSquare(tile, xStart, xEnd, yStart, yEnd, 5);
-    // ctx.fillStyle = 'orange';
-    // ctx.fill(tile);
+    makeSquare(tile, xStart, xEnd, yStart, yEnd, 5);
     ctx.lineWidth = '2';
-    ctx.strokeStyle = COLOR_ORANGE;
+    ctx.strokeStyle = COLOR_YELLOW;
     ctx.stroke(tile);
-    ctx.fillStyle = COLOR_ORANGE;
-    // ctx.shadowColor = COLOR_ORANGE;
-    // ctx.shadowBlur = 1;
-    // ctx.fillStyle = COLOR_BLACK;
-    // ctx.font = `${board.tileSize * 0.5}px Arial`;
-    // ctx.font = `${board.tileSize * 0.5}px "Share Tech Mono"`;
-    // ctx.font = `${board.tileSize * 0.5}px "Unica One"`;
+    ctx.fillStyle = COLOR_TRANSPARENT_BLUE;
+    ctx.fill(tile);
+    ctx.fillStyle = COLOR_YELLOW;
     ctx.font = `${board.tileSize * 0.5}px "Audiowide"`;
     ctx.textBaseline = 'middle';
     ctx.fillText(tileNumber, xStart + (board.tileSize - ctx.measureText(tileNumber).width) * 0.5, yStart + board.tileSize * 0.5);
 
     if (board.areTilesSwapping && !tileSwapComplete && isBoardDrawn) {
       // eslint-disable-next-line prefer-arrow-callback, func-names
-      window.requestAnimationFrame(function () { drawTile(ctx, board.array[board.tileToSwap], board.tileToSwap); });
+      window.requestAnimationFrame(function () { drawTile(ctx, board.array[board.tileToSwapIndex], board.tileToSwapIndex); });
     }
 
     if (isTileDragged && isBoardDrawn) {
@@ -329,34 +254,32 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function drawBoard() {
-    if (gameBoard.getContext) {
-      gameCtx.clearRect(0, 0, gameBoard.width, gameBoard.height);
-      board.array.forEach((elem, i) => {
-        if (elem && (i !== board.tileMovingIndex)) {
-          drawTile(gameCtx, elem, i);
-        }
-      });
-      // if (!board.areTilesSwapping) {
-      isBoardDrawn = true;
-      // }
-    }
+    // if (gameBoard.getContext) {
+    gameCtx.clearRect(0, 0, gameBoard.width, gameBoard.height);
+    board.array.forEach((elem, i) => {
+      if (elem && (i !== board.tileMovingIndex)) {
+        drawTile(gameCtx, elem, i);
+      }
+    });
+    isBoardDrawn = true;
+    // }
   }
 
-  // If the font is not downloaded in time, and the board is drawn with the default font, redraw it later
+  drawBoard();
+
+  // Redraw the board a bit later in case the font hasn't been downloaded in time, and the board's been drawn with the default font
 
   setTimeout(() => {
     isBoardDrawn = false;
     drawBoard();
   }, 500);
-  drawBoard();
 
-  // Listening to Board Size Selection
+  // Board Size Selection
 
   sizeSelect.addEventListener('change', () => {
     board = new Board(gameBoard, +sizeSelect.value, 8);
     drawBoard();
     board.movesNumber = 0;
-    // board.gapSize = (+sizeSelect.value > 5) ? 4 : 8;
     gameMovesNumber.textContent = board.movesNumber;
     console.log(board);
     clearInterval(iterateTime);
@@ -370,7 +293,7 @@ document.addEventListener('DOMContentLoaded', () => {
     gameBoard.addEventListener('mousedown', boardMouseDown);
   });
 
-  // Listening to New Game button
+  // New Game button
 
   btnNew.addEventListener('click', () => {
     board = new Board(gameBoard, +sizeSelect.value, 8);
@@ -388,7 +311,7 @@ document.addEventListener('DOMContentLoaded', () => {
     gameBoard.addEventListener('mousedown', boardMouseDown);
   });
 
-  // Listening to Save button
+  // Save button
 
   btnSave.addEventListener('click', () => {
     const gameStats = {};
@@ -398,9 +321,14 @@ document.addEventListener('DOMContentLoaded', () => {
     gameStats.array = board.array.slice();
     gameStats.zIndex = board.zIndex;
     localStorage.setItem('gemPuzzleByDinaraN_gameStats', JSON.stringify(gameStats));
+    btnSaved.disabled = false;
   });
 
-  // Listening to Saved Game button
+  // Saved Game button
+
+  if (!localStorage.getItem('gemPuzzleByDinaraN_gameStats')) {
+    btnSaved.disabled = true;
+  }
 
   btnSaved.addEventListener('click', () => {
     const gameStats = JSON.parse(localStorage.getItem('gemPuzzleByDinaraN_gameStats'));
@@ -423,7 +351,7 @@ document.addEventListener('DOMContentLoaded', () => {
     gameBoard.addEventListener('mousedown', boardMouseDown);
   });
 
-  // Listening to Sound button
+  // Sound button
 
   btnSound.addEventListener('click', () => {
     if (btnSound.classList.contains('sound-on')) {
@@ -437,7 +365,9 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem('gemPuzzleByDinaraN_gameSettings', JSON.stringify(gameSettings));
   });
 
-  // Listening to Records button
+  // Records button
+
+  const gameRecords = JSON.parse(localStorage.getItem('gemPuzzleByDinaraN_gameRecords')) || [];
 
   btnRecords.addEventListener('click', () => {
     clearInterval(iterateTime);
@@ -459,36 +389,26 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
 
-    // Listening to Close Records pop-up
-
     gameRecordsPopUp.addEventListener('click', () => {
       // setInterval(iterateTime, 100);
       // iterateTime();
       gameRecordsPopUp.remove();
     });
     window.addEventListener('keydown', (keyDown) => {
-      // if (keyDown.key === 'Escape') {
       gameRecordsPopUp.remove();
-      // }
     });
   });
 
+  // If the game is won
+
   function showWinningMessage() {
-    // console.log('Solved!');
-    clearInterval(iterateTime);
-    // stopIteratingTime();
-    gameTime.style.color = COLOR_BLACK;
-    gameMoves.style.color = COLOR_BLACK;
-    btnSave.disabled = true;
     const gameSolvedPopUp = addHtmlElement({ tag: 'div', parent: document.body, classList: ['game-solved-popup'] });
     const gameSolvedPopUpMessage = addHtmlElement({ tag: 'h2', parent: gameSolvedPopUp, classList: ['game-solved-popup__message'], textContent: `Hooray! You solved the puzzle in ${gameTimer.textContent} and ${board.movesNumber} moves!` });
     gameSolvedPopUp.addEventListener('click', () => {
       gameSolvedPopUp.remove();
     });
     window.addEventListener('keydown', (keyDown) => {
-      // if (keyDown.key === 'Escape') {
       gameSolvedPopUp.remove();
-      // }
     });
   }
 
@@ -502,39 +422,61 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem('gemPuzzleByDinaraN_gameRecords', JSON.stringify(gameRecords));
   }
 
+  function finishGame() {
+    gameBoard.removeEventListener('mousedown', boardMouseDown);
+    // console.log('Solved!');
+    clearInterval(iterateTime);
+    // stopIteratingTime();
+    gameTime.style.color = COLOR_BLACK;
+    gameMoves.style.color = COLOR_BLACK;
+    btnSave.disabled = true;
+    showWinningMessage();
+    if ((gameRecords.at(-1) && board.movesNumber < +gameRecords.at(-1).moves) || gameRecords.length < 10) {
+      updateRecords();
+    }
+  }
+
+  // When mouse button is pressed down
+
+  function boardMouseDown(evt) {
+    console.log('mouse down');
+    const bounding = gameBoard.getBoundingClientRect();
+    mouseX = evt.clientX - bounding.left;
+    mouseY = evt.clientY - bounding.top;
+
+    gameBoard.addEventListener('mousemove', boardDrag);
+    gameBoard.addEventListener('mouseup', boardMouseClick);
+  }
+
+  gameBoard.addEventListener('mousedown', boardMouseDown);
+
+  // Dragging the tile
+
   function boardDrag(evt) {
     console.log('mouse move');
     evt.preventDefault();
     gameBoard.removeEventListener('mouseup', boardMouseClick);
     // gameBoard.removeEventListener('mousemove', boardDrag);
     document.body.addEventListener('mouseup', boardStopDrag);
-    // console.log(`board.tileMovingIndex: ${board.tileMovingIndex}`);
+    // gameBoard.addEventListener('mouseleave', () => {
+    //   boardStopDrag();
+    // });
 
     if (isTileDragged) {
-      // console.log('Is Dragged');
       const bounding = gameBoard.getBoundingClientRect();
       mouseX = evt.clientX - bounding.left;
       mouseY = evt.clientY - bounding.top;
       drawBoard();
-      // console.log(`board.tileMovingIndex: ${board.tileMovingIndex}`);
       drawTile(gameCtx, board.array[board.tileMovingIndex], board.tileMovingIndex);
     }
-    // console.log(mouseX, mouseY);
     if (!isTileDragged) {
-      // console.log('Is Not Dragged');
-      // console.log('mousemove');
       for (let i = 0; i < board.boardLength; i += 1) {
         const elem = board.tilesCoords[i];
-        // console.log(elem.xStart);
-        if ((mouseX >= elem.xStart) && (mouseX <= elem.xEnd) && (mouseY >= elem.yStart) && (mouseY <= elem.yEnd) && board.checkTileCanMove(i)) {
+        if ((mouseX >= elem.xStart) && (mouseX <= elem.xEnd) && (mouseY >= elem.yStart) && (mouseY <= elem.yEnd) && board.canTileMove(i)) {
           mouseXOffset = mouseX - elem.xStart;
           mouseYOffset = mouseY - elem.yStart;
           isTileDragged = true;
-          // console.log(`board.tileMovingIndex: ${board.tileMovingIndex}`);
           board.tileMovingIndex = i;
-          // drawBoard();
-          // // eslint-disable-next-line no-loop-func, prefer-arrow-callback
-          // window.requestAnimationFrame(function () { drawTile(ctx, board.array[i], i); });
           break;
         }
       }
@@ -548,31 +490,17 @@ document.addEventListener('DOMContentLoaded', () => {
     // gameBoard.removeEventListener('mouseup', boardMouseClick);
     const zeroCoords = board.tilesCoords[board.zeroIndex];
     if (isTileDragged && (mouseX >= zeroCoords.xStart) && (mouseX <= zeroCoords.xEnd) && (mouseY >= zeroCoords.yStart) && (mouseY <= zeroCoords.yEnd)) {
-      // console.log('yes');
-      // console.log(`board.tileMovingIndex: ${board.tileMovingIndex}, board.zeroIndex: ${board.zeroIndex}`);
-      const coords = board.tilesCoords;
+      // const coords = board.tilesCoords;
       [board.array[board.tileMovingIndex], board.array[board.zeroIndex]] = [board.array[board.zeroIndex], board.array[board.tileMovingIndex]];
       board.zeroIndex = board.tileMovingIndex;
-      // [coords[board.tileMovingIndex].xStart, coords[board.zeroIndex].xStart] = [coords[board.zeroIndex].xStart, coords[board.tileMovingIndex].xStart];
-      // [coords[board.tileMovingIndex].xEnd, coords[board.zeroIndex].xEnd] = [coords[board.zeroIndex].xEnd, coords[board.tileMovingIndex].xEnd];
-      // [coords[board.tileMovingIndex].yStart, coords[board.zeroIndex].yStart] = [coords[board.zeroIndex].yStart, coords[board.tileMovingIndex].yStart];
-      // [coords[board.tileMovingIndex].yEnd, coords[board.zeroIndex].yEnd] = [coords[board.zeroIndex].yEnd, coords[board.tileMovingIndex].yEnd];
-      // board.tilesCoords = board.getTilesCoords();
       board.movesNumber += 1;
       gameMovesNumber.textContent = board.movesNumber;
       audioTileMoving.play();
 
       if (board.isSolved()) {
-        gameBoard.removeEventListener('mousedown', boardMouseDown);
-        showWinningMessage();
-        if ((gameRecords.at(-1) && board.movesNumber < +gameRecords.at(-1).moves) || gameRecords.length < 10) {
-          updateRecords();
-        }
+        finishGame();
       }
     }
-    // console.log(board.array);
-    // isBoardDrawn = false;
-    // drawBoard();
     isTileDragged = false;
     board.tileMovingIndex = null;
     mouseX = 0;
@@ -581,103 +509,74 @@ document.addEventListener('DOMContentLoaded', () => {
     mouseYOffset = 0;
     isBoardDrawn = false;
     drawBoard();
-    // console.log(`Stopping drag, isTileDrag = ${isTileDragged}, board.tileMovingIndex = ${board.tileMovingIndex}`);
   }
 
-  function boardMouseDown(evt) {
-    console.log('mouse down');
-    const bounding = gameBoard.getBoundingClientRect();
-    mouseX = evt.clientX - bounding.left;
-    mouseY = evt.clientY - bounding.top;
-
-    gameBoard.addEventListener('mousemove', boardDrag);
-    gameBoard.addEventListener('mouseup', boardMouseClick);
-  }
+  // Moving the tile on click
 
   function boardMouseClick(evt) {
     console.log('mouse click');
     gameBoard.removeEventListener('mousemove', boardDrag);
     gameBoard.removeEventListener('mouseup', boardMouseClick);
     // gameBoard.removeEventListener('mouseup', boardStopDrag);
-    // console.log('click');
-    // console.log(`Clicking, isTileDrag = ${isTileDragged}, board.tileMovingIndex = ${board.tileMovingIndex}`);
     const bounding = gameBoard.getBoundingClientRect();
     const x = evt.clientX - bounding.left;
     const y = evt.clientY - bounding.top;
-    // console.log(x, y);
     for (let i = 0; i < board.boardLength; i += 1) {
       const elem = board.tilesCoords[i];
-      // console.log(elem.xStart);
       if ((x >= elem.xStart) && (x <= elem.xEnd) && (y >= elem.yStart) && (y <= elem.yEnd)) {
         board.swapTiles(i);
         if (board.areTilesSwapping) {
           audioTileMoving.play();
           xDirection = (board.movingTileNewCoords.xStart > board.movingTilePrevCoords.xStart) ? 'right' : (board.movingTileNewCoords.xStart < board.movingTilePrevCoords.xStart) ? 'left' : null;
           yDirection = (board.movingTileNewCoords.yStart > board.movingTilePrevCoords.yStart) ? 'down' : (board.movingTileNewCoords.yStart < board.movingTilePrevCoords.yStart) ? 'up' : null;
-          // console.log(board.movingTilePrevCoords, board.movingTileNewCoords);
-          // console.log(board.tileToSwap);
           tileSwapComplete = false;
           // eslint-disable-next-line prefer-arrow-callback, func-names, no-loop-func
-          window.requestAnimationFrame(function () { drawTile(gameCtx, board.array[board.tileToSwap], board.tileToSwap); });
+          window.requestAnimationFrame(function () { drawTile(gameCtx, board.array[board.tileToSwapIndex], board.tileToSwapIndex); });
           board.zeroIndex = i;
           gameMovesNumber.textContent = board.movesNumber;
         }
-        // board.areTilesSwapping = false;
         break;
       }
     }
     if (board.isSolved()) {
-      gameBoard.removeEventListener('mousedown', boardMouseDown);
-      showWinningMessage();
-      if ((gameRecords.at(-1) && board.movesNumber < +gameRecords.at(-1).moves) || gameRecords.length < 10) {
-        updateRecords();
-      }
+      finishGame();
     }
   }
-
-  gameBoard.addEventListener('mousedown', boardMouseDown);
 
   // Page background - Stars
 
   function drawStarsBg() {
-    const starsNumber = Math.trunc(window.innerWidth * window.innerHeight * 0.001) + Math.trunc(Math.random() * 100);
-    console.log(`Stars number: ${starsNumber}`);
-    const stars = [];
-    for (let i = 0; i < starsNumber; i += 1) {
-      const x = Math.trunc(Math.random() * window.innerWidth + 1);
-      const y = Math.trunc(Math.random() * window.innerHeight + 1);
-      const radius = Number((Math.random() * 1.8).toFixed(2));
-      const color = COLOR_WHITE;
-      stars.push({
-        x, y, radius, color,
-      });
+    function getStars() {
+      const starsNumber = Math.trunc(window.innerWidth * window.innerHeight * 0.001) + Math.trunc(Math.random() * 100);
+      // console.log(`Stars number: ${starsNumber}`);
+      const stars = [];
+      for (let i = 0; i < starsNumber; i += 1) {
+        const x = Math.trunc(Math.random() * window.innerWidth + 1);
+        const y = Math.trunc(Math.random() * window.innerHeight + 1);
+        const radius = Number((Math.random() * 1.8).toFixed(2));
+        stars.push({ x, y, radius });
+      }
+      return stars;
     }
-    // for (let i = 0; i < 50; i += 1) {
-    //   const random = Math.trunc(Math.random() * (starsNumber + 1));
-    //   stars[random].color = COLOR_ORANGE;
-    // }
-    // for (let i = 0; i < 100; i += 1) {
-    //   const random = Math.trunc(Math.random() * (starsNumber + 1));
-    //   stars[random].color = COLOR_BLUE;
-    // }
 
-    function drawStar(x, y, radius, color) {
-      const bgCtx = pageBackground.getContext('2d');
+    function drawStar(bgCtx, x, y, radius) {
+      // const bgCtx = pageBackground.getContext('2d');
       bgCtx.beginPath();
       bgCtx.arc(x, y, radius, 0, Math.PI * 2, true);
-      bgCtx.fillStyle = color;
+      bgCtx.fillStyle = COLOR_WHITE;
       bgCtx.shadowColor = COLOR_WHITE;
       bgCtx.shadowBlur = 10;
       bgCtx.fill();
     }
 
-    if (pageBackground.getContext) {
-      const bgCtx = pageBackground.getContext('2d');
-      bgCtx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-      stars.forEach((elem) => {
-        drawStar(elem.x, elem.y, elem.radius, elem.color);
-      });
-    }
+    // if (pageBackground.getContext) {
+    const bgCtx = pageBackground.getContext('2d');
+    bgCtx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+    const stars = getStars();
+    stars.forEach((elem) => {
+      drawStar(bgCtx, elem.x, elem.y, elem.radius);
+    });
+    // }
   }
 
   drawStarsBg();

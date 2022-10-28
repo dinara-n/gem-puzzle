@@ -142,8 +142,9 @@ content: none;
   height: 300px; */
   max-width: 100%;
   max-height: 100%;
-  /* background-color: beige; */
-  background-color: black;
+  /* background-color: rgba(247, 205, 9, 0.1); */
+  /* background-color: black; */
+  outline: 3px solid rgb(247, 205, 9);
   border-radius: 10px;
 }
 

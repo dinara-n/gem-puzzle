@@ -5,38 +5,39 @@ class Board {
     this.rowLength = rowLength;
     this.boardLength = this.rowLength ** 2;
     this.boardSize = this.getBoardSize();
-    // this.boardSize = 300;
     this.gapSize = gap;
     this.tileSize = this.getTileSize();
-    this.aimArray = [];
-    for (let i = 0; i < this.boardLength; i += 1) {
-      if (i !== this.boardLength - 1) {
-        this.aimArray.push(i + 1);
-      } else {
-        this.aimArray.push(0);
-      }
-    }
-    do {
-      this.array = Board.getShuffledArray(this.aimArray);
-    } while (!Board.isSolvable(this.array));
+    this.aimArray = Board.getAimArray(this.boardLength);
+    this.array = Board.getShuffledArray(this.aimArray);
     this.tilesCoords = this.getTilesCoords();
-    // this.mouseCoords = { x: null, y: null };
     this.zeroIndex = this.getZeroIndex();
     this.movesNumber = 0;
     this.areTilesSwapping = false;
-    this.tileToSwap = null;
-    this.tileTarget = null;
+    this.tileToSwapIndex = null;
+    this.tileTargetIndex = null;
     this.movingTilePrevCoords = null;
     this.movingTileNewCoords = null;
     this.tileMovingIndex = null;
   }
 
+  static getAimArray(length) {
+    const arr = [];
+    for (let i = 0; i < length - 1; i += 1) {
+      arr.push(i + 1);
+    }
+    arr.push(0);
+    return arr;
+  }
+
   static getShuffledArray(arr) {
     const newArr = Array.from(arr);
-    for (let i = newArr.length - 1; i > 0; i -= 1) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [newArr[i], newArr[j]] = [newArr[j], newArr[i]];
-    }
+    do {
+      for (let i = newArr.length - 1; i > 0; i -= 1) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [newArr[i], newArr[j]] = [newArr[j], newArr[i]];
+      }
+    } while (!Board.isSolvable(newArr));
+
     return newArr;
   }
 
@@ -51,11 +52,9 @@ class Board {
       }
     }
     if (arrRowLength % 2) {
-      // console.log(sum);
       return sum % 2 === 0;
     }
     sum += Math.trunc(arr.indexOf(0) / arrRowLength);
-    // console.log(sum);
     return sum % 2 !== 0;
   }
 
@@ -93,34 +92,29 @@ class Board {
     return arr;
   }
 
-  swapTiles(target) {
-    const indexes = [target - 1, target + 1, target - this.rowLength, target + this.rowLength];
-    // console.log(target);
-    // console.log(indexes);
-    if (this.array[target] === undefined) return;
-    indexes.forEach((elem) => {
-      // console.log(target, elem);
-      const isSameRow = Math.trunc(target / this.rowLength) === Math.trunc(elem / this.rowLength);
-      const isSameColumn = target % this.rowLength === elem % this.rowLength;
+  swapTiles(targetIndex) {
+    const adjacentIndexes = [targetIndex - 1, targetIndex + 1, targetIndex - this.rowLength, targetIndex + this.rowLength];
+    if (this.array[targetIndex] === undefined) return;
+    adjacentIndexes.forEach((elem) => {
+      const isSameRow = Math.trunc(targetIndex / this.rowLength) === Math.trunc(elem / this.rowLength);
+      const isSameColumn = targetIndex % this.rowLength === elem % this.rowLength;
       if ((isSameRow || isSameColumn) && this.array[elem] !== undefined && this.array[elem] === 0) {
-        // console.log('!!!!!!!');
         this.areTilesSwapping = true;
-        this.tileToSwap = target;
-        this.tileTarget = elem;
-        this.movingTilePrevCoords = { ...this.tilesCoords[target] };
+        this.tileToSwapIndex = targetIndex;
+        this.tileTargetIndex = elem;
+        this.movingTilePrevCoords = { ...this.tilesCoords[targetIndex] };
         this.movingTileNewCoords = { ...this.tilesCoords[elem] };
-        // console.log(this.movingTilePrevCoords, this.movingTileNewCoords);
-        [this.array[target], this.array[elem]] = [this.array[elem], this.array[target]];
+        [this.array[targetIndex], this.array[elem]] = [this.array[elem], this.array[targetIndex]];
         this.movesNumber += 1;
       }
     });
   }
 
-  checkTileCanMove(targetIndex) {
-    const indexes = [targetIndex - 1, targetIndex + 1, targetIndex - this.rowLength, targetIndex + this.rowLength];
+  canTileMove(targetIndex) {
+    const adjacentIndexes = [targetIndex - 1, targetIndex + 1, targetIndex - this.rowLength, targetIndex + this.rowLength];
     // if (this.array[targetIndex] === undefined) return;
     // eslint-disable-next-line no-restricted-syntax, prefer-const
-    for (let elem of indexes) {
+    for (let elem of adjacentIndexes) {
       const isSameRow = Math.trunc(targetIndex / this.rowLength) === Math.trunc(elem / this.rowLength);
       const isSameColumn = targetIndex % this.rowLength === elem % this.rowLength;
       if ((isSameRow || isSameColumn) && this.array[elem] !== undefined && this.array[elem] === 0) {
@@ -131,22 +125,8 @@ class Board {
   }
 
   recalculateStats() {
-    // this.rowLength = rowLength;
-    // this.boardLength = this.rowLength ** 2;
     this.boardSize = this.getBoardSize();
-    // this.boardSize = 300;
     this.tileSize = this.getTileSize();
-    // this.aimArray = [];
-    // for (let i = 0; i < this.boardLength; i += 1) {
-    //   if (i !== this.boardLength - 1) {
-    //     this.aimArray.push(i + 1);
-    //   } else {
-    //     this.aimArray.push(0);
-    //   }
-    // }
-    // do {
-    //   this.array = Board.getShuffledArray(this.aimArray);
-    // } while (!Board.isSolvable(this.array));
     this.tilesCoords = this.getTilesCoords();
   }
 
