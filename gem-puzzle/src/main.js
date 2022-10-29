@@ -469,6 +469,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const bounding = gameBoard.getBoundingClientRect();
       mouseX = evt.clientX - bounding.left;
       mouseY = evt.clientY - bounding.top;
+      isBoardDrawn = false;
       drawBoard();
       drawTile(gameCtx, board.array[board.tileMovingIndex], board.tileMovingIndex);
     }
