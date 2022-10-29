@@ -100,9 +100,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Timer
 
+  let timer = null;
   let startingTime = Math.trunc(Date.now() / 1000);
+  let pausedTime = 0;
+  let timerIsStopped = false;
 
-  function iterateTime() {
+  function showTime() {
     const time = Math.trunc(Date.now() / 1000) - startingTime;
     let minutes = Math.trunc(time / 60);
     minutes = (minutes > 9) ? minutes : `0${minutes}`;
@@ -110,14 +113,41 @@ document.addEventListener('DOMContentLoaded', () => {
     seconds = (seconds > 9) ? seconds : `0${seconds}`;
     gameTimer.textContent = `${minutes} : ${seconds}`;
   }
-  setInterval(iterateTime, 100);
-  // const showTime = setInterval(() => iterateTime, 100);
 
-  // function stopIteratingTime() {
-  //   clearInterval(showTime);
-  // }
+  function startTimer() {
+    startingTime = Math.trunc(Date.now() / 1000);
+    timer = setInterval(showTime, 100);
+    timerIsStopped = false;
+  }
 
-  // showTime();
+  function stopTimer() {
+    clearInterval(timer);
+    timerIsStopped = true;
+  }
+
+  function pauseTimer() {
+    if (!timerIsStopped) {
+      pausedTime = Math.trunc(Date.now() / 1000) - startingTime;
+      clearInterval(timer);
+    }
+  }
+
+  function resumeTimer(savedTime = null) {
+    if (savedTime) { // When resuming saved game
+      startingTime = Math.trunc(Date.now() / 1000) - savedTime;
+      timer = setInterval(showTime, 100);
+      timerIsStopped = false;
+      return;
+    }
+    if (!timerIsStopped) { // When resuming paused game
+      startingTime = Math.trunc(Date.now() / 1000) - pausedTime;
+      timer = setInterval(showTime, 100);
+    }
+  }
+
+  startTimer();
+
+  // Game settings
 
   const gameSettings = JSON.parse(localStorage.getItem('gemPuzzleByDinaraN_gameSettings')) || {};
   if (gameSettings.sound) {
@@ -289,13 +319,8 @@ document.addEventListener('DOMContentLoaded', () => {
     board.movesNumber = 0;
     gameMovesNumber.textContent = board.movesNumber;
     console.log(board);
-    clearInterval(iterateTime);
-    // stopIteratingTime();
-    startingTime = Math.trunc(Date.now() / 1000);
-    setInterval(iterateTime, 100);
-    // iterateTime();
-    gameTime.style.color = COLOR_WHITE;
-    gameMoves.style.color = COLOR_WHITE;
+    stopTimer();
+    startTimer();
     btnSave.disabled = false;
     gameBoard.addEventListener('mousedown', boardMouseDown);
   });
@@ -307,13 +332,8 @@ document.addEventListener('DOMContentLoaded', () => {
     drawBoard();
     board.movesNumber = 0;
     gameMovesNumber.textContent = board.movesNumber;
-    clearInterval(iterateTime);
-    // stopIteratingTime();
-    startingTime = Math.trunc(Date.now() / 1000);
-    setInterval(iterateTime, 100);
-    // iterateTime();
-    gameTime.style.color = COLOR_WHITE;
-    gameMoves.style.color = COLOR_WHITE;
+    stopTimer();
+    startTimer();
     btnSave.disabled = false;
     gameBoard.addEventListener('mousedown', boardMouseDown);
   });
@@ -323,7 +343,7 @@ document.addEventListener('DOMContentLoaded', () => {
   btnSave.addEventListener('click', () => {
     const gameStats = {};
     gameStats.size = sizeSelect.value;
-    gameStats.timer = gameTimer.textContent;
+    gameStats.timer = Math.trunc(Date.now() / 1000) - startingTime;
     gameStats.moves = gameMovesNumber.textContent;
     gameStats.array = board.array.slice();
     gameStats.zIndex = board.zIndex;
@@ -340,20 +360,14 @@ document.addEventListener('DOMContentLoaded', () => {
   btnSaved.addEventListener('click', () => {
     const gameStats = JSON.parse(localStorage.getItem('gemPuzzleByDinaraN_gameStats'));
     sizeSelect.value = gameStats.size;
-    clearInterval(iterateTime);
-    // stopIteratingTime();
-    const savedTime = +gameStats.timer.split(':')[0] * 60 + +gameStats.timer.split(':')[1];
-    startingTime = Math.trunc(Date.now() / 1000) - savedTime;
-    setInterval(iterateTime, 100);
-    // iterateTime();
+    stopTimer();
+    resumeTimer(gameStats.timer);
     board = new Board(gameBoard, +sizeSelect.value, 8);
     board.array = gameStats.array.slice();
     board.zeroIndex = board.getZeroIndex();
     board.movesNumber = +gameStats.moves;
     gameMovesNumber.textContent = board.movesNumber;
     drawBoard();
-    gameTime.style.color = COLOR_WHITE;
-    gameMoves.style.color = COLOR_WHITE;
     btnSave.disabled = false;
     gameBoard.addEventListener('mousedown', boardMouseDown);
   });
@@ -377,8 +391,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const gameRecords = JSON.parse(localStorage.getItem('gemPuzzleByDinaraN_gameRecords')) || [];
 
   btnRecords.addEventListener('click', () => {
-    clearInterval(iterateTime);
-    // stopIteratingTime();
+    pauseTimer();
     const gameRecordsPopUp = addHtmlElement({ tag: 'div', parent: document.body, classList: ['game-records-popup'] });
     if (gameRecords.length === 0) {
       const gameRecordsMessage = addHtmlElement({ tag: 'h2', parent: gameRecordsPopUp, classList: ['game-records-message'], textContent: 'You have not won any games yet!' });
@@ -397,12 +410,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     gameRecordsPopUp.addEventListener('click', () => {
-      // setInterval(iterateTime, 100);
-      // iterateTime();
       gameRecordsPopUp.remove();
+      resumeTimer();
     });
     window.addEventListener('keydown', (keyDown) => {
       gameRecordsPopUp.remove();
+      resumeTimer();
     });
   });
 
@@ -431,11 +444,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function finishGame() {
     gameBoard.removeEventListener('mousedown', boardMouseDown);
-    // console.log('Solved!');
-    clearInterval(iterateTime);
-    // stopIteratingTime();
-    gameTime.style.color = COLOR_BLACK;
-    gameMoves.style.color = COLOR_BLACK;
+    stopTimer();
     btnSave.disabled = true;
     showWinningMessage();
     if ((gameRecords.at(-1) && board.movesNumber < +gameRecords.at(-1).moves) || gameRecords.length < 10) {
