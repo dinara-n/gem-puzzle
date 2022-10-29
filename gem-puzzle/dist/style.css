@@ -1,41 +1,33 @@
+:root {
+  --bg-color: #000000;
+  --button-bg-color: #ffffff;
+  --button-disabled-text-color: #aaaaaa;
+  --text-color-primary: #1e1e1e;
+  --text-color-secondary: #ffffff;
+  --popup-bg-color: rgba(0, 0, 0, 0.8);
+  --secondary-color: #f7cd09;
+  --accent-color: #45e8f7;
+}
+
 body, h1, h2, h3, p, ul, ol, li {
   margin: 0;
   padding: 0;
 }
 
-body {
-  /* font-family: Arial, Helvetica, sans-serif;
-  text-transform: uppercase; */
-  /* font-family: 'Share Tech Mono', monospace; */
-  background-color: black;
-  /* font-size: 18px;
-  font-family: 'Unica One', cursive; */
-  font-family: 'Audiowide', 'Arial', monospace;
+.page {
+  background-color: var(--bg-color);
+  font-family: 'Audiowide', 'Arial', sans-serif;
   font-weight: bold;
 }
 
-/* body, */
-button,
-select {
-  /* font-family: Helvetica, sans-serif; */
-  text-transform: uppercase;
-  font-weight: bold;
-  /* font-family: 'Share Tech Mono', monospace; */
-  /* font-size: 10px; */
-  /* font-family: 'Unica One', cursive; */
-  font-family: 'Audiowide', 'Arial', monospace;
-  outline-color: rgb(247, 205, 9);
-  /* outline-width: 4px; */
-}
-
-h2 {
+.game-records-message,
+.game-solved-popup__message {
   padding: 30px;
   font-size: 2em;
-  letter-spacing: 1px;
+  letter-spacing: 3px;
   text-align: center;
   line-height: 2em;
-  text-shadow: 0 0 10px rgb(69, 232, 247);
-  /* text-shadow: 0 0 10px white; */
+  text-shadow: 0 0 10px var(--accent-color);
 }
 
 .main-container {
@@ -43,7 +35,7 @@ h2 {
   flex-direction: column;
   align-items: center;
   /* padding: 70px 5px; */
-  padding: 4vw 5px;
+  padding: 5vh 5px;
 }
 
 .game-controls {
@@ -59,42 +51,36 @@ h2 {
 .game-controls__btn,
 .game-controls__size {
   cursor: pointer;
-  background-color: white;
-  /* background-color: transparent; */
-  color:rgb(30, 30, 30);
-  /* color: white; */
+  background-color: var(button-bg-color);
+  color: var(--text-color-primary);
   border: 0;
-  /* border-color: white; */
   border-radius: 3px;
+  outline-color: var(--secondary-color);
   padding: 10px 15px;
-  font-size: 1em;
-  font-weight: 600;
-  letter-spacing: 1px;
   transition: box-shadow 0.1s;
+
+  font-size: 1em;
+  font-family: 'Audiowide', 'Arial', sans-serif;
+  text-transform: uppercase;
+  font-weight: bold;
+  letter-spacing: 1px;
 }
 
 .game-controls__btn:disabled {
   pointer-events: none;
+  background-color: var(--button-bg-color);
+  /* color: var(--button-disabled-text-color); */
 }
 
 .game-controls__btn:hover,
 .game-controls__size:hover {
-  /* background-color: rgb(247, 205, 9); */
-  /* box-shadow: 0 0 15px rgb(247, 205, 9); */
-  box-shadow: 0 0 15px 5px rgb(69, 232, 247);
-  /* color: rgb(69, 232, 247); */
-  /* color:rgb(70, 70, 70); */
-}
-
-.game-controls__btn--new {
-  /* border-color: blue; */
+  box-shadow: 0 0 15px 5px var(--accent-color);
 }
 
 .game-controls__btn--sound {
   position: relative;
   width: 43px;
   height: 43px;
-  /* background-color: red; */
   background-image: url(assets/sound-icon-30x30.png);
   background-repeat: no-repeat;
   background-position: center;
@@ -104,13 +90,10 @@ h2 {
   content: '';
   position: absolute;
   width: 61px;
-  /* width: 42px; */
   height: 2px;
-  background-color: rgb(30, 30, 30);
+  background-color: var(--text-color-primary);
   bottom: 20px;
   left: -9px;
-  /* bottom: 18px;
-  right: -2px; */
   transform: rotate(45deg);
 }
 
@@ -128,23 +111,19 @@ content: none;
 .game-info__time,
 .game-info__moves {
   font-size: 1.3em;
-  color: white;
-  /* color: rgb(247, 205, 9); */
-  background-color: black;
+  letter-spacing: 1px;
+  color: var(--text-color-secondary);
+  background-color: var(--bg-color);
 }
 
 .gameboard-wrapper {
   width: 500px;
   height: 500px;
-  /* max-width: 90%;
-  max-height: 90%; */
-  /* width: 300px;
-  height: 300px; */
   max-width: 100%;
   max-height: 100%;
   /* background-color: rgba(247, 205, 9, 0.1); */
   /* background-color: black; */
-  outline: 3px solid rgb(247, 205, 9);
+  outline: 3px solid var(--secondary-color);
   border-radius: 10px;
 }
 
@@ -161,8 +140,8 @@ content: none;
   width: 100vw;
   height: 100vh;
   z-index: 1;
-  background-color: rgba(0, 0, 0, 0.8);
-  color: white;
+  background-color: var(--popup-bg-color);
+  color: var(--text-color-secondary);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -177,10 +156,6 @@ content: none;
 .game-records-table__row-cell {
   padding: 5px 20px;
   text-align: center;
-}
-
-th:nth-child(1) {
-  /* width: 30px; */
 }
 
 .page-background {
