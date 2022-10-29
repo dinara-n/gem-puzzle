@@ -158,7 +158,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Gameboard
 
   let board = new Board(gameBoard, +sizeSelect.value, 8);
-  console.log(board);
+  // console.log(board);
   const offsetPerFrame = (board.tileSize + board.gapSize) / 50;
   let xShift = 0;
   let yShift = 0;
@@ -171,7 +171,6 @@ document.addEventListener('DOMContentLoaded', () => {
   let mouseXOffset = 0;
   let mouseYOffset = 0;
   let isBoardDrawn = true; // used to prevent infinite loop when drawTile() and drawBoard() call each other
-  console.log(gameCtx);
 
   function makeSquare(tile, xStart, xEnd, yStart, yEnd, curve) {
     tile.moveTo(xStart, yStart + curve);
@@ -217,12 +216,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (xDirection === 'right' || xDirection === 'left') {
           board.movingTilePrevCoords.xStart += xShift;
           board.movingTilePrevCoords.xEnd += xShift;
-          // board.movingTilePrevCoords.xEnd = board.movingTilePrevCoords.xStart + board.tileSize;
           xStart = board.movingTilePrevCoords.xStart;
           xEnd = board.movingTilePrevCoords.xEnd;
-          // xEnd = xStart + board.tileSize;
-          // yStart = board.movingTilePrevCoords.yStart;
-          // yEnd = board.movingTilePrevCoords.yEnd;
         }
       }
 
@@ -247,12 +242,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (yDirection === 'down' || yDirection === 'up') {
           board.movingTilePrevCoords.yStart += yShift;
           board.movingTilePrevCoords.yEnd += yShift;
-          // board.movingTilePrevCoords.yEnd = board.movingTilePrevCoords.yStart + board.tileSize;
           yStart = board.movingTilePrevCoords.yStart;
           yEnd = board.movingTilePrevCoords.yEnd;
-          // yEnd = yStart + board.tileSize;
-          // xStart = board.movingTilePrevCoords.xStart;
-          // xEnd = board.movingTilePrevCoords.xEnd;
         }
       }
     }
@@ -292,7 +283,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function drawBoard() {
-    // if (gameBoard.getContext) {
     gameCtx.clearRect(0, 0, gameBoard.width, gameBoard.height);
     board.array.forEach((elem, i) => {
       if (elem && (i !== board.tileMovingIndex)) {
@@ -300,7 +290,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
     isBoardDrawn = true;
-    // }
   }
 
   drawBoard();
@@ -318,7 +307,6 @@ document.addEventListener('DOMContentLoaded', () => {
     drawBoard();
     board.movesNumber = 0;
     gameMovesNumber.textContent = board.movesNumber;
-    console.log(board);
     stopTimer();
     startTimer();
     btnSave.disabled = false;
@@ -438,7 +426,6 @@ document.addEventListener('DOMContentLoaded', () => {
     gameRecords.push({ time, moves });
     gameRecords.sort((a, b) => a.moves - b.moves);
     gameRecords.length = (gameRecords.length > 10) ? 10 : gameRecords.length;
-    // console.log(gameRecords);
     localStorage.setItem('gemPuzzleByDinaraN_gameRecords', JSON.stringify(gameRecords));
   }
 
@@ -508,7 +495,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const zeroCoords = board.tilesCoords[board.zeroIndex];
     if (isTileDragged && (mouseX >= zeroCoords.xStart) && (mouseX <= zeroCoords.xEnd)
       && (mouseY >= zeroCoords.yStart) && (mouseY <= zeroCoords.yEnd)) {
-      // const coords = board.tilesCoords;
       [board.array[board.tileMovingIndex], board.array[board.zeroIndex]] = [board.array[board.zeroIndex], board.array[board.tileMovingIndex]];
       board.zeroIndex = board.tileMovingIndex;
       board.movesNumber += 1;
@@ -582,7 +568,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function drawStar(bgCtx, x, y, radius) {
-      // const bgCtx = pageBackground.getContext('2d');
       bgCtx.beginPath();
       bgCtx.arc(x, y, radius, 0, Math.PI * 2, true);
       bgCtx.fillStyle = COLOR_WHITE;
@@ -591,14 +576,12 @@ document.addEventListener('DOMContentLoaded', () => {
       bgCtx.fill();
     }
 
-    // if (pageBackground.getContext) {
     const bgCtx = pageBackground.getContext('2d');
     bgCtx.clearRect(0, 0, window.innerWidth, window.innerHeight);
     const stars = getStars();
     stars.forEach((elem) => {
       drawStar(bgCtx, elem.x, elem.y, elem.radius);
     });
-    // }
   }
 
   drawStarsBg();
